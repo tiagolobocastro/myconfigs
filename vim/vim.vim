@@ -28,7 +28,7 @@ endif
 cabbrev Ack Ack!
 
 " Cock.Nvim
-source ~/utils/vim/coc-nvim.vim
+source ~/git/myconfigs/vim/coc-nvim.vim
 
 
 " Vim airline

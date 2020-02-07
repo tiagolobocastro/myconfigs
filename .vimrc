@@ -1,3 +1,3 @@
 let g:vimplugged = '~/.vim/plugged'
 
-source ~/utils/vim/vim.vim
+source ~/git/myconfigs/vim/vim.vim
