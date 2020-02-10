@@ -1,0 +1,53 @@
+{
+  "hosts": [],
+  "ports": [
+    {
+      "addr": {
+        "adrfam": "",
+        "traddr": "",
+        "treq": "not specified",
+        "trsvcid": "",
+        "trtype": "loop"
+      },
+      "ana_groups": [
+        {
+          "ana": {
+            "state": "optimized"
+          },
+          "grpid": 1
+        }
+      ],
+      "param": {
+        "inline_data_size": "0"
+      },
+      "portid": 1,
+      "referrals": [],
+      "subsystems": [
+        "testnqn"
+      ]
+    }
+  ],
+  "subsystems": [
+    {
+      "allowed_hosts": [],
+      "attr": {
+        "allow_any_host": "1",
+        "serial": "58c568f92390ef26",
+        "version": "1.3"
+      },
+      "namespaces": [
+        {
+          "ana_grpid": 1,
+          "device": {
+            "nguid": "00000000-0000-0000-0000-000000000000",
+            "path": "/dev/nullb0",
+            "uuid": "d9f57a59-bc34-4208-9fa2-2223d2b8b368"
+          },
+          "enable": 1,
+          "nsid": 1
+        }
+      ],
+      "nqn": "testnqn"
+    }
+  ]
+}
