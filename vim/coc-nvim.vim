@@ -45,8 +45,8 @@ nmap <silent> ]g <Plug>(coc-diagnostic-next)
 
 " Remap keys for gotos
 nmap <silent> gd <Plug>(coc-definition)
-nmap <silent> gds : vsplit <bar> normal gd<CR>
-nmap <silent> gdt : tabnew % <bar> normal gd<CR>
+nmap <silent> gs : vsplit <bar> normal gd<CR>
+" nmap <silent> gdt : tabnew % <bar> normal gd<CR>
 nmap <silent> <F12> <Plug>(coc-definition)
 nmap <silent> gy <Plug>(coc-type-definition)
 nmap <silent> gi <Plug>(coc-implementation)
