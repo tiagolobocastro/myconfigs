@@ -1,0 +1,7 @@
+
+# Need to setupk polkit so I don't have to keep reentering the password!
+# kexec env DISPLAY=$DISPLAY XAUTHORITY=$XAUTHORITY $@
+
+# Using session wide "password remember" as a WA until I setup polkit
+# added to visudo: Defaults    !tty_tickets
+sudo $@
