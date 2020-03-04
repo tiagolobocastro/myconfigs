@@ -1,6 +1,6 @@
 check_nosync        = "false"
 sync_dir            = "/home/tiago/OneDrive"
-skip_dir            = "git/*/*/target"
+skip_dir            = "git/*/*/target|git/Mayastor/target|git/Mayastor/spdk-sys/spdk|git/Mayastor/mayastor-test/node_modules"
 skip_file           = "~*|.~*|*.tmp|*.kate-swp"
 skip_dotfiles       = "false"
 skip_symlinks       = "false"

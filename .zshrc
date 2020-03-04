@@ -127,3 +127,5 @@ source $ZSH_CUSTOM/themes/powerlevel10k/powerlevel10k.zsh-theme
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
 POWERLEVEL9K_LINUX_MANJARO_ICON='\uF312'
+
+alias mk=$'ps aux | grep -i maya | grep -v colour | awk \'{print $2}\' | xargs -I % sudo kill -9 %'
