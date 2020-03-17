@@ -14,7 +14,7 @@ sudo modprobe brd rd_size=10240 rd_nr=10
 
 # preload huge pages for the sdk
 echo "To allocate spdk huge pages:
-  sudo HUGEMEM=4096 ~/git/spdk/scripts/setup.sh"
+  sudo HUGEMEM=1024 ~/git/spdk/scripts/setup.sh"
 
 echo "To start the kernel target with loop:
   sudo nvmetcli restore ~/nvme/nvmet-loop.json"
