@@ -1,18 +1,28 @@
 #!/bin/sh
 
+if [ "$EUID" -ne 0 ]; then
+  echo -e "\e[31mRestarting script as root!\e[0m\n\n"
+  sudo -E $(readlink -f $0) 
+  exit
+fi
+
 # load nvme and nvme-tcp kernel modules
-sudo modprobe nvme; sudo modprobe nvmet; sudo modprobe nvme-tcp; sudo modprobe nvmet-tcp
+modprobe nvme; sudo modprobe nvmet; sudo modprobe nvme-tcp; sudo modprobe nvmet-tcp
 
 # load the fake null block device that just fakes R/W IO -> BIO
-sudo insmod ~/git/linux-stable/drivers/block/null_blk.ko nr_devices=1 queue_mode=0 bs=4096
+insmod ~/git/linux-stable/drivers/block/null_blk.ko nr_devices=1 queue_mode=0 bs=4096
 
 # load the nbd kernel module
-sudo modprobe nbd
+modprobe nbd
 
 # load the brd (ramdisk) kernel module -> 10MiB
-sudo modprobe brd rd_size=10240 rd_nr=10
+modprobe brd rd_size=10240 rd_nr=10
 
 # preload huge pages for the sdk
+HUGEMEM=2048 ~/git/spdk/scripts/setup.sh
+
+echo -e "\e[32m\n\n"
+
 echo "To allocate spdk huge pages:
   sudo HUGEMEM=2048 ~/git/spdk/scripts/setup.sh"
 

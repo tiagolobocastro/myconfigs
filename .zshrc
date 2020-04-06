@@ -121,6 +121,15 @@ if [ -e /home/tiago/.nix-profile/etc/profile.d/nix.sh ]; then . /home/tiago/.nix
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
+setopt EXTENDED_HISTORY
+setopt HIST_EXPIRE_DUPS_FIRST
+setopt HIST_IGNORE_DUPS
+setopt HIST_IGNORE_ALL_DUPS
+setopt HIST_IGNORE_SPACE
+setopt HIST_FIND_NO_DUPS
+setopt HIST_SAVE_NO_DUPS
+setopt HIST_BEEP
+
 source $ZSH_CUSTOM/themes/powerlevel10k/powerlevel10k.zsh-theme
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
@@ -128,4 +137,4 @@ source $ZSH_CUSTOM/themes/powerlevel10k/powerlevel10k.zsh-theme
 
 POWERLEVEL9K_LINUX_MANJARO_ICON='\uF312'
 
-alias mk=$'ps aux | grep -i maya | grep -v colour | awk \'{print $2}\' | xargs -I % sudo kill -9 %'
+alias mk=$'sudo /home/tiago/git/myconfigs/maya/clean_pids.sh'
