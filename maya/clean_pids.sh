@@ -9,5 +9,5 @@ SIGNAL=${1:-KILL}
 
 # grep -v grep ignores the grep itself though there must be a 
 # nicer way of doing this...
-all=$(ps -aux | awk '{print $2}' | xargs -I % readlink -f /proc/%/exe | grep Mayastor\/target | grep -v grep)
+all=$(ps a -o pid --no-headers | xargs -I % readlink -f /proc/%/exe | grep Mayastor\/target | grep -v grep)
 echo "$all" | xargs -I % pidof % | xargs -I % kill -$SIGNAL %

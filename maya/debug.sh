@@ -7,7 +7,7 @@ fi
 while [ 1 ]
 do 
   # simply gets the first one...
-  process=$(ps -aux | awk '{print $2}' | xargs -I % readlink -f /proc/%/exe | grep Mayastor\/target | grep -v grep | head -n 1)
+  process=$(ps a -o pid --no-headers | xargs -I % readlink -f /proc/%/exe | grep Mayastor\/target | grep -v grep | head -n 1)
   pid=$(pidof "$process")
 
   if [ "$pid" != "" ]; then
