@@ -19,7 +19,7 @@ modprobe nbd
 modprobe brd rd_size=102400 rd_nr=10
 
 # preload huge pages for the sdk
-HUGEMEM=2048 ~/git/spdk/scripts/setup.sh
+HUGEMEM=4096 ~/git/spdk/scripts/setup.sh
 
 echo -e "\e[32m\n\n"
 
