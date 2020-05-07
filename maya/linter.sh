@@ -1,5 +1,5 @@
-prettier --version
-prettier --config .prettierrc --check csi/moac/*.js mayastor-test/*.js
+#prettier --version
+#prettier --config .prettierrc --check csi/moac/*.js mayastor-test/*.js
 
 cargo fmt --version
 cargo fmt --all

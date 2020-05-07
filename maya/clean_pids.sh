@@ -7,6 +7,7 @@ fi
 
 SIGNAL=${1:-KILL}
 
-all=$(ps aux | grep Mayastor\/target | grep -v 'sudo -E')
-lcount=$(echo "$all" | wc -l)
-echo "$all" | head -n $(($lcount-1)) | awk '{print $2}' | xargs -I % kill -$SIGNAL %
+# grep -v grep ignores the grep itself though there must be a 
+# nicer way of doing this...
+all=$(ps -u | grep Mayastor\/target | grep -v grep)
+echo "$all" | awk '{print $2}' | xargs -I % kill -$SIGNAL %

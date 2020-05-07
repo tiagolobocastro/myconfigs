@@ -1,8 +1,12 @@
-set -e
+set -ex
 
-mctl create --children aio:///dev/ram0 -s 10MiB `uuidgen -r`
+#export UUID=`uuidgen -r`
+export UUID=be8d0ecf-ed31-497e-a554-56c47d401b4c
 
-export UUID=`mctl list | jq ".nexus_list[0].uuid" | tr -d '"'`
+set +x
+trap 'echo "$PS4$BASH_COMMAND"' DEBUG
+
+mctl create --children aio:///dev/ram0 -s 100MiB $UUID
 
 mctl publish $UUID NBD
 

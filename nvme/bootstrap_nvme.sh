@@ -15,8 +15,8 @@ insmod ~/git/linux-stable/drivers/block/null_blk.ko nr_devices=1 queue_mode=0 bs
 # load the nbd kernel module
 modprobe nbd
 
-# load the brd (ramdisk) kernel module -> 10MiB
-modprobe brd rd_size=10240 rd_nr=10
+# load the brd (ramdisk) kernel module -> 100MiB
+modprobe brd rd_size=102400 rd_nr=10
 
 # preload huge pages for the sdk
 HUGEMEM=2048 ~/git/spdk/scripts/setup.sh
