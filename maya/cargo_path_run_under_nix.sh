@@ -10,8 +10,8 @@ cat << EOF > $1/$2
 #!/bin/bash
 run_nix_bin() {
 bin=\$(/usr/bin/which cargo)
-if [ \$bin = \$(readlink -f ~/.cargo/bin/cargo)" ]; then
-  ( ~/.nix-profile/bin/nix-shell --run "$2 \$*" ~/git/Mayastor/shell.nix )
+if [ \$bin = \$(readlink -f ~/.cargo/bin/cargo) ]; then
+  ( ~/.nix-profile/bin/nix-shell --run "$2 \$*" ~/git/Mayastor/shell.nix | tail -n +8 )
 else
     echo "Odd... Should not be running outside our shell.. exit"
     exit 1

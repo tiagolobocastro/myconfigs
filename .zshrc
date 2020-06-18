@@ -137,4 +137,36 @@ source $ZSH_CUSTOM/themes/powerlevel10k/powerlevel10k.zsh-theme
 
 POWERLEVEL9K_LINUX_MANJARO_ICON='\uF312'
 
+alias ww=$'watch '
 alias mk=$'sudo /home/tiago/git/myconfigs/maya/clean_pids.sh'
+alias k=$'kubectl'
+alias kk=$'kubectl -n mayastor'
+alias p=$'kk get pods'
+alias pp=$'k get pods -A'
+alias dm=$'kk describe pod -l app=moac | head'
+alias fm=$'kk logs --follow -lapp=moac -c moac --tail=-1'
+alias dms=$'kk get pods -l app=mayastor -o name | xargs -I % sh -c "kubectl -n mayastor describe % | head -n 4"'
+alias wv=$'watch -d "kubectl -n mayastor describe msv | tail -n 30"'
+
+alias fms='f(){
+kk logs --follow $1 mayastor --tail=-1
+unset -f f;
+}; f'
+alias ss='f(){
+kk exec $1 -c mayastor --stdin --tty -- /sbin/sh 
+unset -f f;
+}; f'
+
+alias nix-cargo='f(){
+bin=$(/usr/bin/which cargo)
+if [ $bin = "/home/tiago/.cargo/bin/cargo" ]; then
+  ( cd ~/git/Mayastor && nix-shell --run "cargo $*" )
+else
+  $bin $* 
+fi
+unset -f f;
+}; f'
+
+export PATH=$PATH:~/git/myconfigs/maya
+
+export EDITOR=vim
