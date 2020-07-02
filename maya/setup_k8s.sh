@@ -62,6 +62,27 @@ function waitForMoacDeployment() {
     exit 1
 }
 
+function waitForMsn() {
+    echo "Waiting for MSN..."
+
+    tries=40
+    while [[ $tries -gt 0 ]]; do
+        up="yes"
+        for i in $(seq 2 $NODES); do
+            kubectl -n mayastor get msn ksnode-$i >/dev/null 2>/dev/null || up="no"
+        done
+
+        if [[ $up == "yes" ]]; then
+            return
+        fi
+
+        ((tries--))
+        sleep 5
+    done
+    echo "Timed out waiting for MSN..."
+    exit 1
+}
+
 function waitForK8s() {
     echo "Waiting for K8S..."
 
@@ -163,11 +184,11 @@ function removeMayastorYaml() {
     sed -i 's/mayadata\/moac:latest/$REPO\/moac:$TAG/g' $DEPLOY/*.yaml
     
     set +e
-    REPO=$REPO TAG=$TAG envsubst '$REPO $TAG' < $DEPLOY/moac-deployment.yaml | kubectl delete -f -
-    REPO=$REPO TAG=$TAG envsubst '$REPO $TAG' < $DEPLOY/mayastor-daemonset.yaml | kubectl delete -f -
-    kubectl delete -f $DEPLOY/nats-deployment.yaml
-    kubectl delete -f $DEPLOY/mayastorpoolcrd.yaml
-    kubectl delete -f $DEPLOY/namespace.yaml
+    REPO=$REPO TAG=$TAG envsubst '$REPO $TAG' < $DEPLOY/moac-deployment.yaml | kubectl delete -f - 2>/dev/null
+    REPO=$REPO TAG=$TAG envsubst '$REPO $TAG' < $DEPLOY/mayastor-daemonset.yaml | kubectl delete -f - 2>/dev/null
+    kubectl delete -f $DEPLOY/nats-deployment.yaml 2>/dev/null
+    kubectl delete -f $DEPLOY/mayastorpoolcrd.yaml 2>/dev/null
+    kubectl delete -f $DEPLOY/namespace.yaml 2>/dev/null
     set -e
 
     # Wait for objects to go away...
@@ -175,6 +196,8 @@ function removeMayastorYaml() {
 }
 
 function add_storage() {
+    # Wait for the MSN to be ready
+    waitForMsn
 # Now the pools!
 cat << 'EOF' > /tmp/storage_pool.yaml
 apiVersion: "openebs.io/v1alpha1"
@@ -186,14 +209,16 @@ spec:
   node: ksnode-$NODE
   disks: ["$POOL"]
 EOF
+    # delete old ones
+    kubectl -n mayastor delete msp --all 2>/dev/null || true
 
     for i in $(seq 2 $NODES); do
         loop=$(losetup -l -n | grep $POOL_LOCATION/data$i.img | cut -d' ' -f1)
         NODE=$i POOL=$loop envsubst '$NODE $POOL' < /tmp/storage_pool.yaml | kubectl create -f -
     done
 
-    sleep 1
-    for i in $(seq 2 $NODES); do kubectl -n mayastor describe msp pool-on-node-$i; done
+    #sleep 1
+    #for i in $(seq 2 $NODES); do kubectl -n mayastor describe msp pool-on-node-$i; done
 }
 function remove_storage() {
 cat << 'EOF' > /tmp/storage_pool.yaml
@@ -255,7 +280,6 @@ function terraform_destroy() {
 
 function install_mayastor() {
     installMayastorYaml
-    sleep 15
     add_storage
     create_pvc
 }
