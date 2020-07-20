@@ -17,6 +17,9 @@ call plug#begin(g:vimplugged)
   " Nerd Tree
   Plug 'preservim/nerdtree'
 
+  " Vim-Nix
+  Plug 'LnL7/vim-nix'
+
 call plug#end()
 
 " Ack
@@ -28,7 +31,7 @@ endif
 cabbrev Ack Ack!
 
 " Cock.Nvim
-source ~/git/myconfigs/vim/coc-nvim.vim
+source $myvim/vim/coc-nvim.vim
 
 
 " Vim airline
