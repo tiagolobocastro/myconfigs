@@ -19,8 +19,11 @@ plugins=(
 	git
 )
 
-# Path to your oh-my-zsh installation.
-export ZSH="/home/tiago/.oh-my-zsh"
+
+if [[ -z $ZSH ]]; then
+    export ZSH="/home/tiago/.oh-my-zsh"
+    source $ZSH/oh-my-zsh.sh
+fi
 
 # No shared history!
 setopt no_share_history
@@ -52,9 +55,12 @@ alias k=$'kubectl'
 alias kk=$'kubectl -n mayastor'
 alias p=$'kk get pods'
 alias pp=$'k get pods -A'
-alias dm=$'kk describe pod -l app=moac | head'
+alias dmm=$'kk describe pod -l app=moac | head'
 alias fm=$'kk logs --follow -lapp=moac -c moac --tail=-1'
 alias dms=$'kk get pods -l app=mayastor -o name | xargs -I % sh -c "kubectl -n mayastor describe % | head -n 4"'
+alias dmn=$'kk get pods -l app=nats -o name | xargs -I % sh -c "kubectl -n mayastor describe % | head -n 4"'
+alias dm=$'dmm;dmn;echo -e "\n";dms'
+alias dmc=$'dmm;dmn'
 alias wv=$'watch -d "kubectl -n mayastor describe msv | tail -n 30"'
 
 alias fms='f(){
@@ -79,3 +85,4 @@ unset -f f;
 export PATH=$PATH:~/git/myconfigs/maya
 
 export EDITOR=vim
+

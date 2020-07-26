@@ -24,6 +24,11 @@ sudo ls >/dev/null
 sed -i 's/  source = \"\.\/mod\/libvirt\"/  #source = \"\.\/mod\/libvirt\"/g' $TERRA/main.tf
 sed -i 's/  #source = \"\.\/mod\/lxd\"/  source = \"\.\/mod\/lxd\"/g' $TERRA/main.tf
 
+# make sure the local registry is running
+(ps aux | grep docker-compose | grep -v grep) || (
+    echo "Starting local registry..."
+    cd /docker-store && nohup docker-compose up </dev/null >/dev/null 2>&1 &
+)
 
 function waitForMayastorDS() {
     echo "Waiting for mayastor to come up..."
@@ -244,7 +249,7 @@ function create_pvc() {
     # Let's create a PVC
     kubectl create -f $DEPLOY/storage-class.yaml
     kubectl create -f $DEPLOY/pvc.yaml # ms-volume-claim
-    kubectl create -f $DEPLOY/fio.yaml
+    #kubectl create -f $DEPLOY/fio.yaml
 
     kubectl get pvc
     kubectl get pods
@@ -275,6 +280,8 @@ function terraform_create() {
 function terraform_destroy() {
     pushd $TERRA
     terraform destroy -auto-approve
+    localRegistry=$(ps a | grep docker-compose | grep -v grep | cut -d' ' -f1)
+    [ "$localRegistry" != "" ] && kill $localRegistry
     popd
 }
 
@@ -335,6 +342,9 @@ case "$1" in
     test)
         delete_pvc
         create_pvc
+        ;;
+    add_storage)
+        add_storage
         ;;
     restart)
         restartK8S

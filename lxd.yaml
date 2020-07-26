@@ -1,0 +1,33 @@
+config: {}
+networks:
+- config:
+    ipv4.address: 10.113.170.1/24
+    ipv4.nat: "true"
+    ipv6.address: fd42:d2cc:ca30:6b2::1/64
+    ipv6.nat: "true"
+  description: ""
+  name: lxdbr0
+  type: bridge
+storage_pools:
+- config:
+    lvm.thinpool_name: LXDThinPool
+    lvm.vg_name: default
+    size: 24GB
+    source: /var/lib/lxd/disks/default.img
+  description: ""
+  name: default
+  driver: lvm
+profiles:
+- config: {}
+  description: Default LXD profile
+  devices:
+    eth0:
+      name: eth0
+      network: lxdbr0
+      type: nic
+    root:
+      path: /
+      pool: default
+      type: disk
+  name: default
+
