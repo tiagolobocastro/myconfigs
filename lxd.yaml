@@ -6,6 +6,7 @@ networks:
     ipv6.address: fd42:d2cc:ca30:6b2::1/64
     ipv6.nat: "true"
   description: ""
+  managed: true
   name: lxdbr0
   type: bridge
 storage_pools:
@@ -14,6 +15,7 @@ storage_pools:
     lvm.vg_name: default
     size: 24GB
     source: /var/lib/lxd/disks/default.img
+    volatile.initial_source: /var/lib/lxd/disks/default.img
   description: ""
   name: default
   driver: lvm
@@ -23,7 +25,8 @@ profiles:
   devices:
     eth0:
       name: eth0
-      network: lxdbr0
+      nictype: bridged
+      parent: lxdbr0
       type: nic
     root:
       path: /
