@@ -82,7 +82,9 @@ fi
 unset -f f;
 }; f'
 
-export PATH=$PATH:~/git/myconfigs/maya
+export PATH=$PATH:~/git/myconfigs/maya:~/git/Mayastor/target/debug
 
 export EDITOR=vim
+
+export RUST_SRC_PATH=~/.rustup/toolchains/nightly-2020-07-26-x86_64-unknown-linux-gnu/lib/rustlib/sr
 

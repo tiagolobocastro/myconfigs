@@ -1,0 +1,10 @@
+[core]
+	excludesfile = /home/tiago/.gitignore_global
+	editor = vim
+[user]
+	email = tiagolobocastro@gmail.com
+	name = Tiago Castro
+[credential]
+	helper = cache --timeout=3600
+[gc]
+	autoDetach = false
