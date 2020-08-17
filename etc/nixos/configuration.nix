@@ -139,7 +139,7 @@ in
     thin-provisioning-tools lxd lvm2 e2fsprogs unzip kubectl
     # extra KDE apps
     kate kcalc spectacle yakuake ark partition-manager kdesu
-    unstable.idea.idea-community rustup vscode   
+    unstable.idea.idea-community rustup vscode gcc
 
     (pkgs.smartgithg.overrideAttrs (oldAttrs: {
       version = "20.1.3"; 
