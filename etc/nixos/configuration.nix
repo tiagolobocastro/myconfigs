@@ -15,7 +15,18 @@ in
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
       ./iscsid.nix
+      ./vscode.nix
     ];
+
+  vscode.user = "tiago";
+  vscode.homeDir = "/home/tiago";
+  vscode.extensions = with pkgs.vscode-extensions; [
+    ms-vscode.cpptools
+  ];
+  nixpkgs.latestPackages = [
+    "vscode"
+    "vscode-extensions"
+  ];
 
   # Use the GRUB 2 boot loader.
   boot.loader.grub.enable = true;
@@ -139,7 +150,7 @@ in
     thin-provisioning-tools lxd lvm2 e2fsprogs unzip kubectl
     # extra KDE apps
     kate kcalc spectacle yakuake ark partition-manager kdesu
-    unstable.idea.idea-community rustup vscode gcc
+    unstable.idea.idea-community rustup
 
     (pkgs.smartgithg.overrideAttrs (oldAttrs: {
       version = "20.1.3"; 
@@ -156,7 +167,7 @@ in
       '';
     }))
 
-    onedrive gparted skopeo openiscsi ansible k9s
+    onedrive gparted skopeo openiscsi ansible k9s virt-manager astyle
   ];
 
   services.iscsid.enable = true;

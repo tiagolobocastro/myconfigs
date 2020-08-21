@@ -12,9 +12,6 @@ REPO=192.168.1.137:5000
 #REPO=mayadata
 TAG="latest"
 #TAG="v0.0.3"
-#TAG_MAYA=1e5dca3
-#TAG_GRPC=08a71d45c9f2bf284f8b713dea116f0ab819fc4d
-#TAG_MOAC=08a71d45c9f2bf284f8b713dea116f0ab819fc4d
 SSH_KEY=`cat ~/.ssh/id_rsa.pub | tail -c +9`
 # lxd or libvirt
 PROVIDER=libvirt
@@ -28,7 +25,7 @@ LIBVIRT_IMAGE_PATH="$LIBVIRT_IMAGE_DIR"/$LIBVIRT_IMAGE
 sudo ls >/dev/null
 
 # make sure the local registry is running
-(ps aux | grep docker-compose | grep -v grep) || (
+(ps aux | grep -v grep | grep -Eq "docker-compose|docker-registry") || (
     echo "Starting local registry..."
     cd /docker-store && nohup docker-compose up </dev/null >/dev/null 2>&1 &
 )
@@ -137,7 +134,7 @@ function tuneK8sNodeLibVirt() {
         virsh detach-disk ksnode-$i vdb || true
         rm $POOL_SIZE $POOL_LOCATION/data$i.img 2>/dev/null || true
         qemu-img create -f raw $POOL_LOCATION/data$i.img $POOL_SIZE
-        virsh attach-disk ksnode-$i $POOL_LOCATION/data$i.img vdb --cache none
+        virsh attach-disk ksnode-$i $POOL_LOCATION/data$i.img vdb --cache none --persistent
     done
 
     # modprobe nvme?
@@ -197,12 +194,14 @@ function restartK8S() {
     waitForK8s
 }
 
+function patchYamlImages() {
+    # Patch our k8s container images
+    for image in mayastor mayastor-csi moac; do
+        sed -i "s/image: .*\/$image:.*$/image: \$REPO\/$image:\$TAG/g" $DEPLOY/*.yaml
+    done
+}
 function installMayastorYaml() {
-    # Patch the mayastor, mayastor-grpc and moac images?
-    sed -i 's/mayadata\/mayastor:v0.3.0/$REPO\/mayastor:$TAG/g' $DEPLOY/*.yaml
-    sed -i 's/mayadata\/mayastor-grpc:v0.3.0/$REPO\/mayastor-grpc:$TAG/g' $DEPLOY/*.yaml
-    sed -i 's/mayadata\/mayastor-csi:v0.3.0/$REPO\/mayastor-csi:$TAG/g' $DEPLOY/*.yaml
-    sed -i 's/mayadata\/moac:v0.3.0/$REPO\/moac:$TAG/g' $DEPLOY/*.yaml
+    patchYamlImages
 
     # Ok now we're ready to apply some yaml!
     set +e
@@ -222,11 +221,7 @@ function installMayastorYaml() {
     kubectl -n mayastor get pods
 }
 function removeMayastorYaml() {
-    # Patch the mayastor, mayastor-grpc and moac images?
-    sed -i 's/mayadata\/mayastor:latest/$REPO\/mayastor:$TAG/g' $DEPLOY/*.yaml
-    sed -i 's/mayadata\/mayastor-grpc:latest/$REPO\/mayastor-grpc:$TAG/g' $DEPLOY/*.yaml
-    sed -i 's/mayadata\/mayastor-csi:latest/$REPO\/mayastor-csi:$TAG/g' $DEPLOY/*.yaml
-    sed -i 's/mayadata\/moac:latest/$REPO\/moac:$TAG/g' $DEPLOY/*.yaml
+    patchYamlImages
     
     set +e
     REPO=$REPO TAG=$TAG envsubst '$REPO $TAG' < $DEPLOY/moac-deployment.yaml | kubectl delete -f - 2>/dev/null
@@ -302,6 +297,17 @@ EOF
 }
 
 function create_pvc() {
+grep -q nbd $DEPLOY/storage-class.yaml || cat << 'EOF' >> $DEPLOY/storage-class.yaml
+---
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: mayastor-nbd
+parameters:
+  repl: '2'
+  protocol: 'nbd'
+provisioner: io.openebs.csi-mayastor
+EOF
     # Let's create a PVC
     kubectl create -f $DEPLOY/storage-class.yaml || true
     kubectl create -f $DEPLOY/pvc.yaml # ms-volume-claim
@@ -338,18 +344,6 @@ function terraform_prepare() {
         sed -i "s/default     = \"\/ubuntu.*$/default     = \"${LIBVIRT_IMAGE_PATH//\//\\/}\"/g" "$TERRA/variables.tf"
         echo "Using libvirt provider"
     fi
-
-grep -q nbd $DEPLOY/storage-class.yaml || cat << 'EOF' >> $DEPLOY/storage-class.yaml
----
-kind: StorageClass
-apiVersion: storage.k8s.io/v1
-metadata:
-  name: mayastor-nbd
-parameters:
-  repl: '1'
-  protocol: 'nbd'
-provisioner: io.openebs.csi-mayastor
-EOF
 }
 
 function terraform_create() {
@@ -362,6 +356,7 @@ function terraform_create() {
     # extra space is to stop it from doing it again everytime
     sed -i "s/\"storage-driver\": \"overlay2\"/\"storage-driver\":  \"overlay2\",\n  \"insecure-registries\" : [\"192\.168\.1\.137:5000\"]/g" "$TERRA/mod/k8s/repo.sh"
 
+    terraform init
     terraform apply -var="num_nodes=$NODES" -var="modprobe_nvme=$LIBVIRT_IMAGE" -var="qcow2_image=$LIBVIRT_IMAGE_PATH" -auto-approve
     popd
 }
@@ -372,6 +367,7 @@ function terraform_destroy() {
         done
     fi
     pushd $TERRA
+    terraform init
     terraform destroy -auto-approve
     localRegistry=$(ps a | grep docker-compose | grep -v grep | cut -d' ' -f1)
     [ "$localRegistry" != "" ] && kill $localRegistry
