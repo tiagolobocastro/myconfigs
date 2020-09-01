@@ -19,6 +19,8 @@ plugins=(
 	git
 )
 
+bindkey "^[[1;5D" backward-word
+bindkey "^[[1;5C" forward-word
 
 if [[ -z $ZSH ]]; then
     export ZSH="/home/tiago/.oh-my-zsh"
@@ -27,8 +29,6 @@ fi
 
 # No shared history!
 setopt no_share_history
-
-if [ -e /home/tiago/.nix-profile/etc/profile.d/nix.sh ]; then . /home/tiago/.nix-profile/etc/profile.d/nix.sh; fi # added by Nix installer
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
@@ -47,8 +47,13 @@ source $ZSH_CUSTOM/themes/powerlevel10k/powerlevel10k.zsh-theme 2>/dev/null
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
+# Manjaro only
 POWERLEVEL9K_LINUX_MANJARO_ICON='\uF312'
+if [ -e /home/tiago/.nix-profile/etc/profile.d/nix.sh ]; then . /home/tiago/.nix-profile/etc/profile.d/nix.sh; fi # added by Nix installer
+export EDITOR=vim
 
+
+# k8s mayastor workspace specific
 alias ww=$'watch '
 alias mk=$'sudo /home/tiago/git/myconfigs/maya/clean_pids.sh'
 alias k=$'kubectl'
@@ -83,8 +88,5 @@ unset -f f;
 }; f'
 
 export PATH=$PATH:~/git/myconfigs/maya:~/git/Mayastor/target/debug
-
-export EDITOR=vim
-
 export RUST_SRC_PATH=~/.rustup/toolchains/nightly-2020-07-26-x86_64-unknown-linux-gnu/lib/rustlib/sr
 

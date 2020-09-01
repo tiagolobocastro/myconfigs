@@ -32,6 +32,9 @@ case "$1" in
     mayastorCsi)
         mayastorCsi
         ;;
+    csi)
+        mayastorCsi
+        ;;
     mayastorAll)
         mayastorAll
         ;;
@@ -42,7 +45,7 @@ case "$1" in
         all
         ;;
     *)
-        echo $"Usage: $0 { mayastor | mayastorCsi | mayastorAll | moac | all }"
+        echo $"Usage: $0 { mayastor | csi | mayastorCsi | mayastorAll | moac | all }"
         exit 1
 esac
 

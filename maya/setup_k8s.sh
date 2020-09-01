@@ -4,7 +4,7 @@ set -e
 MAYASTOR=~/git/Mayastor
 DEPLOY=$MAYASTOR/deploy
 TERRA=$MAYASTOR/terraform
-NODES=3
+NODES=4
 MAX_NBD=4
 POOL_SIZE=2G
 POOL_LOCATION=/data
@@ -14,7 +14,7 @@ TAG="latest"
 #TAG="v0.0.3"
 SSH_KEY=`cat ~/.ssh/id_rsa.pub | tail -c +9`
 # lxd or libvirt
-PROVIDER=libvirt
+PROVIDER=lxd
 export LIBVIRT_DEFAULT_URI=qemu:///system
 LIBVIRT_IMAGE_DIR=$HOME/terraform_images
 LIBVIRT_IMAGE_URL=https://cloud-images.ubuntu.com/releases/focal/release/ubuntu-20.04-server-cloudimg-amd64.img
@@ -132,12 +132,35 @@ function tuneK8sNodeLibVirt() {
     sudo chown $USER $POOL_LOCATION
     for i in $(seq 2 $NODES); do
         virsh detach-disk ksnode-$i vdb || true
-        rm $POOL_SIZE $POOL_LOCATION/data$i.img 2>/dev/null || true
+        rm -f $POOL_LOCATION/data$i.img 2>/dev/null || true
         qemu-img create -f raw $POOL_LOCATION/data$i.img $POOL_SIZE
         virsh attach-disk ksnode-$i $POOL_LOCATION/data$i.img vdb --cache none --persistent
     done
+}
 
-    # modprobe nvme?
+function unTuneK8sNode() {
+    if [ $PROVIDER == 'lxd' ]; then
+        unTuneK8sNodeLxd
+    elif  [ $PROVIDER == 'libvirt' ]; then
+        unTuneK8sNodeLibVirt
+    fi
+}
+function unTuneK8sNodeLibVirt() {
+    for i in $(seq 2 $NODES); do
+        virsh detach-disk ksnode-$i vdb || true
+        rm -f $POOL_LOCATION/data$i.img 2>/dev/null || true
+    done
+}
+
+function unTuneK8sNodeLxd() {
+    for i in $(seq 2 $NODES); do
+        loop=$(losetup -l -n | grep $POOL_LOCATION/data$i.img | cut -d' ' -f1)
+        for j in $loop; do
+            lxc config device remove ksnode-$i ${loop:5:10} 2>/dev/null || true
+            sudo losetup -d $j
+        done
+        rm -f $POOL_LOCATION/data$i.img 2>/dev/null || true
+    done
 }
 
 function tuneK8sNodeLxd() {
@@ -154,7 +177,7 @@ function tuneK8sNodeLxd() {
             lxc config device remove ksnode-$i ${loop:5:10} 2>/dev/null || true
             sudo losetup -d $j
         done
-        rm $POOL_SIZE $POOL_LOCATION/data$i.img 2>/dev/null || true
+        rm -f $POOL_LOCATION/data$i.img 2>/dev/null || true
         fallocate -l $POOL_SIZE $POOL_LOCATION/data$i.img
         sudo losetup -f $POOL_LOCATION/data$i.img
     done
@@ -222,14 +245,14 @@ function installMayastorYaml() {
 }
 function removeMayastorYaml() {
     patchYamlImages
-    
+
     set +e
-    REPO=$REPO TAG=$TAG envsubst '$REPO $TAG' < $DEPLOY/moac-deployment.yaml | kubectl delete -f - 2>/dev/null
-    REPO=$REPO TAG=$TAG envsubst '$REPO $TAG' < $DEPLOY/mayastor-daemonset.yaml | kubectl delete -f - 2>/dev/null
-    REPO=$REPO TAG=$TAG envsubst '$REPO $TAG' < $DEPLOY/csi-daemonset.yaml | kubectl delete -f - 2>/dev/null
-    kubectl delete -f $DEPLOY/moac-rbac.yaml
-    kubectl delete -f $DEPLOY/nats-deployment.yaml 2>/dev/null
+    REPO=$REPO TAG=$TAG envsubst '$REPO $TAG' < $DEPLOY/csi-daemonset.yaml | kubectl delete - 2>/dev/null
+    REPO=$REPO TAG=$TAG envsubst '$REPO $TAG' < $DEPLOY/mayastor-daemonset.yaml | kubectl delete - 2>/dev/null
     kubectl delete -f $DEPLOY/mayastorpoolcrd.yaml 2>/dev/null
+    REPO=$REPO TAG=$TAG envsubst '$REPO $TAG' < $DEPLOY/moac-deployment.yaml | kubectl delete - 2>/dev/null
+    kubectl delete -f $DEPLOY/nats-deployment.yaml 2>/dev/null
+    kubectl delete -f $DEPLOY/moac-rbac.yaml
     kubectl delete -f $DEPLOY/namespace.yaml 2>/dev/null
     set -e
 
@@ -269,6 +292,7 @@ EOF
     #sleep 1
     #for i in $(seq 2 $NODES); do kubectl -n mayastor describe msp pool-on-node-$i; done
 }
+
 function remove_storage() {
 cat << 'EOF' > /tmp/storage_pool.yaml
 apiVersion: "openebs.io/v1alpha1"
@@ -317,7 +341,7 @@ EOF
     kubectl get pods
 }
 function delete_pvc() {
-    kubectl delete -f $DEPLOY/fio.yaml --force --grace-period=0 || true
+    kubectl delete -f $DEPLOY/fio.yaml || true
     kubectl delete -f $DEPLOY/pvc.yaml || true
     kubectl delete -f $DEPLOY/storage-class.yaml || true
 }
@@ -333,7 +357,7 @@ function terraform_prepare() {
         sed -i 's/  #source = \"\.\/mod\/lxd\"/  source = \"\.\/mod\/lxd\"/g' $TERRA/main.tf
         echo "Using LXD provider"
     elif  [ $PROVIDER == 'libvirt' ]; then
-        sed -i 's/  source = \"\.\/mod\/lxd\"/  #source = \"\.\/mod\/lxdt\"/g' $TERRA/main.tf
+        sed -i 's/  source = \"\.\/mod\/lxd\"/  #source = \"\.\/mod\/lxd\"/g' $TERRA/main.tf
         sed -i 's/  #source = \"\.\/mod\/libvirt\"/  source = \"\.\/mod\/libvirt\"/g' $TERRA/main.tf
         sudo mkdir -p $LIBVIRT_IMAGE_DIR
         sudo chown $USER $LIBVIRT_IMAGE_DIR
@@ -426,6 +450,9 @@ case "$1" in
         tuneK8sNode
         restartK8S
         ;;
+    untune)
+        unTuneK8sNode
+        ;;
     pvc_remove)
         delete_pvc
         ;;
@@ -440,7 +467,7 @@ case "$1" in
         restartK8S
         ;;
     *)
-        echo $"Usage: $0 {create|create_only|destroy|install|remove|reinstall|restart|test|tune|add_storage|pvc_remove|install_only|reinstall_only}"
+        echo $"Usage: $0 {create|create_only|destroy|install|remove|reinstall|restart|test|tune|untune|add_storage|pvc_remove|install_only|reinstall_only}"
         exit 1
 esac
 

@@ -34,10 +34,9 @@ in
   boot.loader.grub.efiSupport = true;
   boot.loader.grub.useOSProber = true;
   boot.loader.grub.efiInstallAsRemovable = true;
+  boot.loader.grub.device = "nodev";
+  # Add systemd to enable kexec
   boot.loader.systemd-boot.enable = true;
-  #boot.loader.efi.efiSysMountPoint = "/boot/efi";
-  # Define on which hard drive you want to install Grub.
-  boot.loader.grub.device = "nodev"; # "nodev" for efi only
 
   boot = {
     kernelPackages = pkgs.linuxPackages_latest;
@@ -86,7 +85,7 @@ in
       onShutdown = "shutdown";
     };
     lxd = { enable = true; };
-    docker = { enable = false; };
+    docker = { enable = true; };
   };
   systemd.services.lxd.path = with pkgs; [ lvm2 thin-provisioning-tools e2fsprogs ];
   services.dockerRegistry = {
@@ -187,6 +186,8 @@ in
     shellInit = ''
       export EDITOR=vim
       export LIBVIRT_DEFAULT_URI=qemu:///system
+      export REAL_PAGER=$PAGER
+      export NIX_PAGER=cat
     '';
     promptInit = "source ${pkgs.zsh-powerlevel10k}/share/zsh-powerlevel10k/powerlevel10k.zsh-theme";
     ohMyZsh.enable = true;
