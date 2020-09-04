@@ -317,6 +317,8 @@ EOF
         done
     fi
 
+    kubectl -n mayastor delete msp --all
+
     sleep 10
 }
 
@@ -355,6 +357,7 @@ function terraform_prepare() {
     if [ $PROVIDER == 'lxd' ]; then
         sed -i 's/  source = \"\.\/mod\/libvirt\"/  #source = \"\.\/mod\/libvirt\"/g' $TERRA/main.tf
         sed -i 's/  #source = \"\.\/mod\/lxd\"/  source = \"\.\/mod\/lxd\"/g' $TERRA/main.tf
+        sed -i "s/storageClassName: mayastor$/storageClassName: mayastor-nbd/g" "$DEPLOY/pvc.yaml"
         echo "Using LXD provider"
     elif  [ $PROVIDER == 'libvirt' ]; then
         sed -i 's/  source = \"\.\/mod\/lxd\"/  #source = \"\.\/mod\/lxd\"/g' $TERRA/main.tf

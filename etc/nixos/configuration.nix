@@ -9,6 +9,7 @@ let
     (builtins.fetchTarball https://github.com/NixOS/nixpkgs/archive/nixos-unstable.tar.gz)
     # reuse the current configuration
     { config = config.nixpkgs.config; };
+  mine = import /home/tiago/git/nixpkgs { config = config.nixpkgs.config; };
 in
 {
   imports =
@@ -115,6 +116,7 @@ in
   time.timeZone = "Europe/London";
 
   environment.systemPackages = with pkgs; [
+    mine.p3x-onenote
     ((vim_configurable.override { python = python3; }).customize{
       name = "vim";
       vimrcConfig.packages.myplugins = with pkgs.vimPlugins; {
@@ -157,7 +159,7 @@ in
         url = "https://www.syntevo.com/downloads/smartgit/smartgit-linux-20_1_3.tar.gz";
         sha256 = "0lgk0fhjq4nia99ywrv2pgf4w2q797zibxlp5k768dkr52gsgqk9";
       };
-    }))
+    })) meld
 
     unstable.slack (unstable.zoom-us.overrideAttrs (oldAttrs: {
       installPhase = oldAttrs.installPhase + ''
