@@ -53,14 +53,10 @@ in
     
     # MayaData requirements
     unstable.slack
-    (unstable.zoom-us.overrideAttrs (oldAttrs: {
-      installPhase = oldAttrs.installPhase + ''
-        rm $out/share/zoom-us/libturbojpeg.so
-        cp libturbojpeg.so.0.1.0 $out/share/zoom-us/libturbojpeg.so
-      '';
-    }))
+    unstable.zoom-us
+    unstable.jitsi-meet-electron
     openiscsi
-    rustup clang
+    rustup 
     (unstable.terraform.withPlugins(p: [
       p.null
       p.template
@@ -69,5 +65,8 @@ in
       p.libvirt
     ])) ansible virt-manager
     kubectl k9s 
+
+    # Golang
+    go
   ];
 }

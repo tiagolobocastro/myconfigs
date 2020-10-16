@@ -4,7 +4,7 @@ set -e
 MAYASTOR=~/git/Mayastor
 DEPLOY=$MAYASTOR/deploy
 TERRA=$MAYASTOR/terraform
-NODES=4
+NODES=3 # includes the master
 MAX_NBD=4
 POOL_SIZE=2G
 POOL_LOCATION=/data
@@ -15,6 +15,7 @@ TAG="latest"
 SSH_KEY=`cat ~/.ssh/id_rsa.pub | tail -c +9`
 # lxd or libvirt
 PROVIDER=lxd
+PROTOCOL=nbd
 export LIBVIRT_DEFAULT_URI=qemu:///system
 LIBVIRT_IMAGE_DIR=$HOME/terraform_images
 LIBVIRT_IMAGE_URL=https://cloud-images.ubuntu.com/releases/focal/release/ubuntu-20.04-server-cloudimg-amd64.img
@@ -131,7 +132,7 @@ function tuneK8sNodeLibVirt() {
     sudo mkdir $POOL_LOCATION 2>/dev/null || true
     sudo chown $USER $POOL_LOCATION
     for i in $(seq 2 $NODES); do
-        virsh detach-disk ksnode-$i vdb || true
+        virsh detach-disk ksnode-$i vdb 2>/dev/null || true
         rm -f $POOL_LOCATION/data$i.img 2>/dev/null || true
         qemu-img create -f raw $POOL_LOCATION/data$i.img $POOL_SIZE
         virsh attach-disk ksnode-$i $POOL_LOCATION/data$i.img vdb --cache none --persistent
@@ -201,6 +202,8 @@ function tuneK8sNodeLxd() {
     for i in $(seq 2 $NODES); do
         lxc config device remove ksnode-$i nvme-fabrics 2>/dev/null || true
         lxc config device add ksnode-$i nvme-fabrics unix-char path=/dev/nvme-fabrics
+        #lxc config device remove ksnode-$i nvme1 2>/dev/null || true
+        #lxc config device add ksnode-$i nvme1 unix-block path=/dev/nvme1 major=259 minor=0
     done
 }
 
@@ -232,6 +235,8 @@ function installMayastorYaml() {
     kubectl create -f $DEPLOY/namespace.yaml 
     kubectl create -f $DEPLOY/nats-deployment.yaml
     REPO=$REPO TAG=$TAG envsubst '$REPO $TAG' < $DEPLOY/csi-daemonset.yaml | kubectl create -f -
+    kubectl create -f $DEPLOY/mayastorpoolcrd.yaml
+    kubectl create -f $DEPLOY/moac-rbac.yaml
     kubectl create -f $DEPLOY/mayastorpoolcrd.yaml
     kubectl create -f $DEPLOY/moac-rbac.yaml
     REPO=$REPO TAG=$TAG envsubst '$REPO $TAG' < $DEPLOY/moac-deployment.yaml | kubectl create -f -
@@ -362,6 +367,7 @@ function terraform_prepare() {
     elif  [ $PROVIDER == 'libvirt' ]; then
         sed -i 's/  source = \"\.\/mod\/lxd\"/  #source = \"\.\/mod\/lxd\"/g' $TERRA/main.tf
         sed -i 's/  #source = \"\.\/mod\/libvirt\"/  source = \"\.\/mod\/libvirt\"/g' $TERRA/main.tf
+        sed -i "s/storageClassName: mayastor.*$/storageClassName: mayastor-$PROTOCOL/g" "$DEPLOY/pvc.yaml"
         sudo mkdir -p $LIBVIRT_IMAGE_DIR
         sudo chown $USER $LIBVIRT_IMAGE_DIR
         if [ ! -f $LIBVIRT_IMAGE_PATH ]; then

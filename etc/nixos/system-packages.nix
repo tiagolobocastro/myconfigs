@@ -7,6 +7,9 @@ let
     { config = config.nixpkgs.config; };
 in
 {
+  #imports = [ <nixos/modules/services/networking/onedrive.nix> ];
+  #disabledModules = [ "services/networking/onedrive.nix" ];
+
   environment.systemPackages = with pkgs; [
     # Basic
     wget git nixfmt manpages unzip 
@@ -35,4 +38,6 @@ in
     # Sync Data 
     onedrive 
   ];
+
+  #services.onedrive.enable = true;
 }
