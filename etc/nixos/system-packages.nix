@@ -7,9 +7,6 @@ let
     { config = config.nixpkgs.config; };
 in
 {
-  #imports = [ <nixos/modules/services/networking/onedrive.nix> ];
-  #disabledModules = [ "services/networking/onedrive.nix" ];
-
   environment.systemPackages = with pkgs; [
     # Basic
     wget git nixfmt manpages unzip 
@@ -36,8 +33,8 @@ in
     nodejs yarn fzf silver-searcher # used by vim plugins
 
     # Sync Data 
-    onedrive 
+    unstable.onedrive 
   ];
 
-  #services.onedrive.enable = true;
+  services.onedrive.enable = true;
 }

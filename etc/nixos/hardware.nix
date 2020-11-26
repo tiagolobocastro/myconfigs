@@ -38,10 +38,10 @@
     ];
     extraModprobeConfig = ''
       options kvm_amd nested=1
-      options brd rd_size=102400 rd_nr=10
+      options brd rd_size=102400 rd_nr=4
       options nf_conntrack hashsize=393216
     '';
-    kernel.sysctl = { "vm.nr_hugepages" = 2048; };
+    kernel.sysctl = { "vm.nr_hugepages" = 2560; };
   };
 
   # Enable sound.

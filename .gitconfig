@@ -2,7 +2,7 @@
 	excludesfile = /home/tiago/.gitignore_global
 	editor = vim
 [user]
-	email = tiagolobocastro@gmail.com
+	email = tiago.castro@mayadata.io
 	name = Tiago Castro
 [credential]
 	helper = cache --timeout=3600

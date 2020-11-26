@@ -58,7 +58,7 @@ alias ww=$'watch '
 alias mk=$'sudo /home/tiago/git/myconfigs/maya/clean_pids.sh'
 alias k=$'kubectl'
 alias kk=$'kubectl -n mayastor'
-alias p=$'kk get pods'
+alias p=$'kk get pods -o wide'
 alias pp=$'k get pods -A'
 alias dmm=$'kk describe pod -l app=moac | head'
 alias fm=$'kk logs --follow -lapp=moac -c moac --tail=-1'
@@ -88,5 +88,5 @@ unset -f f;
 }; f'
 
 export PATH=$PATH:~/git/myconfigs/maya:~/git/Mayastor/target/debug
-export RUST_SRC_PATH=~/.rustup/toolchains/nightly-2020-07-26-x86_64-unknown-linux-gnu/lib/rustlib/sr
+export RUST_SRC_PATH=~/.rustup/toolchains/nightly-2020-07-26-x86_64-unknown-linux-gnu/lib/rustlib/src
 

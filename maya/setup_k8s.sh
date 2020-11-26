@@ -2,9 +2,11 @@
 set -e
 
 MAYASTOR=~/git/Mayastor
-DEPLOY=$MAYASTOR/deploy
-TERRA=$MAYASTOR/terraform
-NODES=3 # includes the master
+DEPLOY_ORG=$MAYASTOR/deploy
+DEPLOY=/tmp/terraform/deploy
+TERRA=/tmp/terraform
+TERRA_ORG=$MAYASTOR/terraform
+NODES=4 # includes the master
 MAX_NBD=4
 POOL_SIZE=2G
 POOL_LOCATION=/data
@@ -14,8 +16,9 @@ TAG="latest"
 #TAG="v0.0.3"
 SSH_KEY=`cat ~/.ssh/id_rsa.pub | tail -c +9`
 # lxd or libvirt
-PROVIDER=lxd
-PROTOCOL=nbd
+PROVIDER=libvirt
+PROTOCOL=nvmf
+OS_DISK_SIZE=10737418240 # 10GB
 export LIBVIRT_DEFAULT_URI=qemu:///system
 LIBVIRT_IMAGE_DIR=$HOME/terraform_images
 LIBVIRT_IMAGE_URL=https://cloud-images.ubuntu.com/releases/focal/release/ubuntu-20.04-server-cloudimg-amd64.img
@@ -225,6 +228,9 @@ function patchYamlImages() {
     for image in mayastor mayastor-csi moac; do
         sed -i "s/image: .*\/$image:.*$/image: \$REPO\/$image:\$TAG/g" $DEPLOY/*.yaml
     done
+    # Reduce memory and cpu
+    sed -i "/-m0x3/d" $DEPLOY/mayastor-daemonset.yaml
+    sed -i "s/cpu: \".\"/cpu: \"1\"/g" $DEPLOY/mayastor-daemonset.yaml
 }
 function installMayastorYaml() {
     patchYamlImages
@@ -352,11 +358,29 @@ function delete_pvc() {
     kubectl delete -f $DEPLOY/pvc.yaml || true
     kubectl delete -f $DEPLOY/storage-class.yaml || true
 }
-
+function terraform_setup_force() {
+    mkdir -p $DEPLOY
+    rm -rf $DEPLOY/*
+    cp -r $TERRA_ORG/* $TERRA
+    cp -rp $DEPLOY_ORG/* $DEPLOY
+    rm $DEPLOY/mayastorpoolcrd.yaml
+    cp $DEPLOY_ORG/mayastorpoolcrd.yaml $DEPLOY/mayastorpoolcrd.yaml
+}
+function terraform_setup() {
+    if [ ! -d $DEPLOY ]; then
+        terraform_setup_force
+    fi 
+}
 function terraform_prepare() {
+    terraform_setup
     sed -i "s/#default     = \"\/home\/user/default     = \"\/home\/$USER/g" "$TERRA/variables.tf"
     sed -i "s/#default     = \"user\"/default     = \"$USER\"/g" "$TERRA/variables.tf"
     sed -i "s/#default     = \"ssh-rsa/default     = \"ssh-rsa/g" "$TERRA/variables.tf"
+    sed -i "/description = \"The size of the root disk in bytes\"$/{N;s/description = \"The size of the root disk in bytes\"\n  default     = 6442450944/description = \"The size of the root disk in bytes\"\n  default     = $OS_DISK_SIZE/}" "$TERRA/variables.tf"
+
+    sed -i "s/required_version = \">= 0.13\"/required_version = \">= 0.12\"/" "$TERRA/mod/libvirt/main.tf"
+    sed -i "/required_providers {/,+5d" "$TERRA/mod/libvirt/main.tf"
+
     sed -i "s~\.\.\.~$SSH_KEY~g" "$TERRA/variables.tf"
 
     if [ $PROVIDER == 'lxd' ]; then
@@ -420,6 +444,7 @@ function remove_mayastor() {
 
 case "$1" in
     prepare)
+        terraform_setup_force
         terraform_prepare
         ;;
     destroy)

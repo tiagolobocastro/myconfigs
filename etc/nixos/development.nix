@@ -38,23 +38,23 @@ in
     gdb
 
     # GUIs
-    unstable.idea.idea-community
+    idea.idea-community
     (pkgs.smartgithg.overrideAttrs (oldAttrs: {
-      version = "20.1.3";
+      version = "20.2.0";
       src = fetchurl {
-        url = "https://www.syntevo.com/downloads/smartgit/smartgit-linux-20_1_3.tar.gz";
-        sha256 = "0lgk0fhjq4nia99ywrv2pgf4w2q797zibxlp5k768dkr52gsgqk9";
+        url = "https://www.syntevo.com/downloads/smartgit/smartgit-linux-20_2_0.tar.gz";
+        sha256 = "02cqd3xpb6wl4sx44hg2qsdlg7bf666jhqgj0i11mqcyw0hcf0zy";
       };
     })) meld
 
     # Container development
-    unstable.lxd thin-provisioning-tools lvm2 e2fsprogs
+    lxd thin-provisioning-tools lvm2 e2fsprogs
     skopeo
     
     # MayaData requirements
-    unstable.slack
-    unstable.zoom-us
-    unstable.jitsi-meet-electron
+    slack
+    zoom-us
+    jitsi-meet-electron
     openiscsi
     rustup 
     (unstable.terraform.withPlugins(p: [
@@ -68,5 +68,7 @@ in
 
     # Golang
     go
+
+    linuxPackages.bpftrace
   ];
 }

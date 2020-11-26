@@ -6,8 +6,9 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 SIGNAL=${1:-KILL}
+QUERY=${2:-Mayastor\/target}
 
 # grep -v grep ignores the grep itself though there must be a 
 # nicer way of doing this...
-all=$(ps a -o pid --no-headers | xargs -I % readlink -f /proc/%/exe | grep Mayastor\/target | grep -v grep)
+all=$(ps a -o pid --no-headers | xargs -I % readlink -f /proc/%/exe | grep $QUERY | grep -v grep)
 echo "$all" | xargs -I % pidof % | xargs -I % kill -$SIGNAL %
