@@ -6,7 +6,7 @@ DEPLOY_ORG=$MAYASTOR/deploy
 DEPLOY=/tmp/terraform/deploy
 TERRA=/tmp/terraform
 TERRA_ORG=$MAYASTOR/terraform
-NODES=4 # includes the master
+NODES=3 # includes the master
 MAX_NBD=4
 POOL_SIZE=2G
 POOL_LOCATION=/data
@@ -33,6 +33,31 @@ sudo ls >/dev/null
     echo "Starting local registry..."
     cd /docker-store && nohup docker-compose up </dev/null >/dev/null 2>&1 &
 )
+
+function waitForMsp() {
+    echo "Waiting for the pools to become online..."
+    tries=80
+    while [[ $tries -gt 0 ]]; do
+        not_online="no"
+        for state in $(kubectl -n mayastor get msp -o json | jq ".items[].status.state" | sed 's/"//g'); do
+            if [[ $state != "online" ]]; then
+                not_online="yes"
+            fi
+        done
+        if [[ $not_online = "no" ]]; then
+            echo "all nodes good!"
+            kubectl -n mayastor get msp
+            return
+        fi
+
+        ((tries--))
+        sleep 1
+    done
+    echo "Timed out waiting for mayastor pools..."
+    kubectl get pods -A
+    kubectl -n mayastor get msp
+    exit 1
+}
 
 function waitForMayastorDS() {
     echo "Waiting for mayastor to come up..."
@@ -249,6 +274,8 @@ function installMayastorYaml() {
     REPO=$REPO TAG=$TAG envsubst '$REPO $TAG' < $DEPLOY/mayastor-daemonset.yaml | kubectl create -f -
     set -e
 
+    add_storage
+
     # Wait for them to come up
     waitForMayastorDS
     waitForMoacDeployment
@@ -271,9 +298,13 @@ function removeMayastorYaml() {
     kubectl -n mayastor get pods
 }
 
+function remove_storage() {
+    kubectl -n mayastor delete msp --all 2>/dev/null || true
+}
+
 function add_storage() {
     # Wait for the MSN to be ready
-    waitForMsn
+    # waitForMsn
 # Now the pools!
 cat << 'EOF' > /tmp/storage_pool.yaml
 apiVersion: "openebs.io/v1alpha1"
@@ -328,9 +359,9 @@ EOF
         done
     fi
 
-    kubectl -n mayastor delete msp --all
+    kubectl -n mayastor delete msp --all || true
 
-    sleep 10
+    #sleep 10
 }
 
 function create_pvc() {
@@ -360,7 +391,6 @@ function delete_pvc() {
 }
 function terraform_setup_force() {
     mkdir -p $DEPLOY
-    rm -rf $DEPLOY/*
     cp -r $TERRA_ORG/* $TERRA
     cp -rp $DEPLOY_ORG/* $DEPLOY
     rm $DEPLOY/mayastorpoolcrd.yaml
@@ -369,7 +399,7 @@ function terraform_setup_force() {
 function terraform_setup() {
     if [ ! -d $DEPLOY ]; then
         terraform_setup_force
-    fi 
+    fi
 }
 function terraform_prepare() {
     terraform_setup
@@ -424,7 +454,7 @@ function terraform_destroy() {
         done
     fi
     pushd $TERRA
-    terraform init
+    #terraform init
     terraform destroy -auto-approve
     localRegistry=$(ps a | grep docker-compose | grep -v grep | cut -d' ' -f1)
     [ "$localRegistry" != "" ] && kill $localRegistry
@@ -433,8 +463,9 @@ function terraform_destroy() {
 
 function install_mayastor() {
     installMayastorYaml
-    add_storage
-    create_pvc
+    waitForMsp
+    #add_storage
+    #create_pvc
 }
 function remove_mayastor() {
     delete_pvc
@@ -497,8 +528,14 @@ case "$1" in
     add_storage)
         add_storage
         ;;
+    remove_storage)
+        remove_storage
+        ;;
     restart)
         restartK8S
+        ;;
+    setup)
+        terraform_setup
         ;;
     *)
         echo $"Usage: $0 {create|create_only|destroy|install|remove|reinstall|restart|test|tune|untune|add_storage|pvc_remove|install_only|reinstall_only}"

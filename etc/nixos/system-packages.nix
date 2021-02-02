@@ -34,6 +34,8 @@ in
 
     # Sync Data 
     unstable.onedrive 
+
+    bitwarden
   ];
 
   services.onedrive.enable = true;

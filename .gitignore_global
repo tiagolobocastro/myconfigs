@@ -5,5 +5,5 @@ modules.xml
 vcs.xml
 workspace.xml
 /.idea
-node_modules/
 /spdk-sys/spdk
+node_modules/

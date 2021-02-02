@@ -30,7 +30,15 @@ fi
 # No shared history!
 setopt no_share_history
 
+# Non NixOS fzf
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+# NixOS fzf
+if [ -n "${commands[fzf-share]}" ]; then
+  source "$(fzf-share)/key-bindings.zsh"
+  source "$(fzf-share)/completion.zsh"
+fi
+# toggle preview window using '?'
+export FZF_DEFAULT_OPTS="--bind '?:preview:cat {}' --preview-window hidden --preview 'cat {}'"
 
 setopt EXTENDED_HISTORY
 setopt HIST_EXPIRE_DUPS_FIRST

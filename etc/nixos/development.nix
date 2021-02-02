@@ -38,6 +38,7 @@ in
     gdb
 
     # GUIs
+    jetbrains.goland
     idea.idea-community
     (pkgs.smartgithg.overrideAttrs (oldAttrs: {
       version = "20.2.0";
@@ -53,6 +54,7 @@ in
     
     # MayaData requirements
     slack
+    discord
     zoom-us
     jitsi-meet-electron
     openiscsi
@@ -63,8 +65,10 @@ in
       p.kubernetes
       p.lxd
       p.libvirt
+      p.helm
     ])) ansible virt-manager
     kubectl k9s 
+    kubernetes-helm
 
     # Golang
     go

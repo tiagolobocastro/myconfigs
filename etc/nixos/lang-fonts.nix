@@ -13,10 +13,7 @@
   fonts = {
     enableFontDir = true;
     fonts = with pkgs; [
-      powerline-fonts
-      unifont		  # International languages
-      nerdfonts
-      noto-fonts
+      (nerdfonts.override { fonts = [ "Hasklig" "FiraCode" ]; })
     ];
   };
 }

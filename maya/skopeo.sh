@@ -5,7 +5,7 @@ function mayastor() {
     skopeo copy docker-archive:/$(nix-build -A images.mayastor-dev-image --no-out-link) --dest-tls-verify=false docker://$registry/mayastor:latest --insecure-policy
 }
 function mayastorCsi() {
-    skopeo copy docker-archive:/$(nix-build -A images.mayastor-csi-dev-image --no-out-link) --dest-tls-verify=false docker://$registry/mayastor-csi:latest --insecure-policy
+    skopeo copy docker-archive:/$(nix-build -A images.mayastor-csi-image --no-out-link) --dest-tls-verify=false docker://$registry/mayastor-csi:latest --insecure-policy
 }
 function mayastorAll() {
     mayastor

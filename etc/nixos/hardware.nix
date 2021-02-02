@@ -41,7 +41,7 @@
       options brd rd_size=102400 rd_nr=4
       options nf_conntrack hashsize=393216
     '';
-    kernel.sysctl = { "vm.nr_hugepages" = 2560; };
+    kernel.sysctl = { "vm.nr_hugepages" = 3192; };
   };
 
   # Enable sound.
