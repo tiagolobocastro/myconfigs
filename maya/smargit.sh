@@ -1,3 +1,3 @@
 #!/usr/bin/env sh
-cd ~/git/Mayastor
-nix-shell --command "nohup smartgit >/dev/null &"
+cd ~/git/chief
+nix-shell --arg nomayastor true --command "nohup smartgit >/dev/null &"

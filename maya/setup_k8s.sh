@@ -6,12 +6,15 @@ DEPLOY_ORG=$MAYASTOR/deploy
 DEPLOY=/tmp/terraform/deploy
 TERRA=/tmp/terraform
 TERRA_ORG=$MAYASTOR/terraform
-NODES=3 # includes the master
+NODES=4 # includes the master
 MAX_NBD=4
-POOL_SIZE=2G
+POOL_SIZE=16G
 POOL_LOCATION=/data
-REPO=192.168.1.137:5000
-#REPO=mayadata
+NR_HUGEPAGES=512
+MEMORY=4096
+VCPU=2
+REPO=192.168.1.137:5000/mayadata
+#REPO=ci-registry.mayastor-ci.mayadata.io/mayadata
 TAG="latest"
 #TAG="v0.0.3"
 SSH_KEY=`cat ~/.ssh/id_rsa.pub | tail -c +9`
@@ -27,6 +30,9 @@ LIBVIRT_IMAGE_PATH="$LIBVIRT_IMAGE_DIR"/$LIBVIRT_IMAGE
 
 # request sudo password
 sudo ls >/dev/null
+
+# :(
+sudo mkdir /images 2>/dev/null || true; sudo chown $USER /images
 
 # make sure the local registry is running
 (ps aux | grep -v grep | grep -Eq "docker-compose|docker-registry") || (
@@ -139,6 +145,8 @@ function waitForK8s() {
 }
 
 function tuneK8sNode() {
+    mkdir ~/.kube || true
+
     if [ $PROVIDER == 'lxd' ]; then
         tuneK8sNodeLxd
     elif  [ $PROVIDER == 'libvirt' ]; then
@@ -256,6 +264,9 @@ function patchYamlImages() {
     # Reduce memory and cpu
     sed -i "/-m0x3/d" $DEPLOY/mayastor-daemonset.yaml
     sed -i "s/cpu: \".\"/cpu: \"1\"/g" $DEPLOY/mayastor-daemonset.yaml
+    # Add poll delay
+    sed -i "s/IMPORT_NEXUSES/MAYASTOR_DELAY/g" $DEPLOY/mayastor-daemonset.yaml
+
 }
 function installMayastorYaml() {
     patchYamlImages
@@ -263,13 +274,12 @@ function installMayastorYaml() {
     # Ok now we're ready to apply some yaml!
     set +e
     # Namespace, moac and mayastor
-    kubectl create -f $DEPLOY/namespace.yaml 
+    kubectl create namespace mayastor
     kubectl create -f $DEPLOY/nats-deployment.yaml
     REPO=$REPO TAG=$TAG envsubst '$REPO $TAG' < $DEPLOY/csi-daemonset.yaml | kubectl create -f -
     kubectl create -f $DEPLOY/mayastorpoolcrd.yaml
     kubectl create -f $DEPLOY/moac-rbac.yaml
-    kubectl create -f $DEPLOY/mayastorpoolcrd.yaml
-    kubectl create -f $DEPLOY/moac-rbac.yaml
+    kubectl create -f $DEPLOY/etcd
     REPO=$REPO TAG=$TAG envsubst '$REPO $TAG' < $DEPLOY/moac-deployment.yaml | kubectl create -f -
     REPO=$REPO TAG=$TAG envsubst '$REPO $TAG' < $DEPLOY/mayastor-daemonset.yaml | kubectl create -f -
     set -e
@@ -287,11 +297,13 @@ function removeMayastorYaml() {
     set +e
     REPO=$REPO TAG=$TAG envsubst '$REPO $TAG' < $DEPLOY/csi-daemonset.yaml | kubectl delete - 2>/dev/null
     REPO=$REPO TAG=$TAG envsubst '$REPO $TAG' < $DEPLOY/mayastor-daemonset.yaml | kubectl delete - 2>/dev/null
-    kubectl delete -f $DEPLOY/mayastorpoolcrd.yaml 2>/dev/null
+    # MOAC now crashes if you delete this first!
+    # kubectl delete -f $DEPLOY/mayastorpoolcrd.yaml 2>/dev/null
     REPO=$REPO TAG=$TAG envsubst '$REPO $TAG' < $DEPLOY/moac-deployment.yaml | kubectl delete - 2>/dev/null
     kubectl delete -f $DEPLOY/nats-deployment.yaml 2>/dev/null
+    kubectl delete -f $DEPLOY/mayastorpoolcrd.yaml 2>/dev/null
     kubectl delete -f $DEPLOY/moac-rbac.yaml
-    kubectl delete -f $DEPLOY/namespace.yaml 2>/dev/null
+    kubectl delete namespace mayastor
     set -e
 
     # Wait for objects to go away...
@@ -322,7 +334,8 @@ EOF
     if [ $PROVIDER == 'lxd' ]; then
         for i in $(seq 2 $NODES); do
             loop=$(losetup -l -n | grep $POOL_LOCATION/data$i.img | cut -d' ' -f1)
-            NODE=$i POOL=$loop envsubst '$NODE $POOL' < /tmp/storage_pool.yaml | kubectl create -f -
+            NODE=$i POOL=$loop envsubst '$NODE $POOL' < /tmp/storage_pool.yaml | kubectl apply -f -
+            #NODE=$i POOL=$loop envsubst '$NODE $POOL' < /tmp/storage_pool.yaml | kubectl create -f -
         done
     elif  [ $PROVIDER == 'libvirt' ]; then
         for i in $(seq 2 $NODES); do
@@ -399,6 +412,8 @@ function terraform_setup_force() {
 function terraform_setup() {
     if [ ! -d $DEPLOY ]; then
         terraform_setup_force
+    else
+        cp -r $TERRA_ORG/* $TERRA
     fi
 }
 function terraform_prepare() {
@@ -444,7 +459,7 @@ function terraform_create() {
     sed -i "s/\"storage-driver\": \"overlay2\"/\"storage-driver\":  \"overlay2\",\n  \"insecure-registries\" : [\"192\.168\.1\.137:5000\"]/g" "$TERRA/mod/k8s/repo.sh"
 
     terraform init
-    terraform apply -var="num_nodes=$NODES" -var="modprobe_nvme=$LIBVIRT_IMAGE" -var="qcow2_image=$LIBVIRT_IMAGE_PATH" -auto-approve
+    terraform apply -var="memory=$MEMORY" -var="vcpu=$VCPU" -var="nr_hugepages=$NR_HUGEPAGES" -var="num_nodes=$NODES" -var="modprobe_nvme=$LIBVIRT_IMAGE" -var="qcow2_image=$LIBVIRT_IMAGE_PATH" -auto-approve
     popd
 }
 function terraform_destroy() {
@@ -455,7 +470,7 @@ function terraform_destroy() {
     fi
     pushd $TERRA
     #terraform init
-    terraform destroy -auto-approve
+    terraform destroy -auto-approve || true
     localRegistry=$(ps a | grep docker-compose | grep -v grep | cut -d' ' -f1)
     [ "$localRegistry" != "" ] && kill $localRegistry
     popd
@@ -533,6 +548,9 @@ case "$1" in
         ;;
     restart)
         restartK8S
+        ;;
+    setup_force)
+        terraform_setup_force
         ;;
     setup)
         terraform_setup

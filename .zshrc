@@ -48,6 +48,7 @@ setopt HIST_IGNORE_SPACE
 setopt HIST_FIND_NO_DUPS
 setopt HIST_SAVE_NO_DUPS
 setopt HIST_BEEP
+HISTSIZE=50000
 
 # Not great to hide erros though :(
 source $ZSH_CUSTOM/themes/powerlevel10k/powerlevel10k.zsh-theme 2>/dev/null
@@ -70,6 +71,7 @@ alias p=$'kk get pods -o wide'
 alias pp=$'k get pods -A'
 alias dmm=$'kk describe pod -l app=moac | head'
 alias fm=$'kk logs --follow -lapp=moac -c moac --tail=-1'
+alias fml='kk logs -lapp=moac -c moac --tail=-1 | less'
 alias dms=$'kk get pods -l app=mayastor -o name | xargs -I % sh -c "kubectl -n mayastor describe % | head -n 4"'
 alias dmn=$'kk get pods -l app=nats -o name | xargs -I % sh -c "kubectl -n mayastor describe % | head -n 4"'
 alias dm=$'dmm;dmn;echo -e "\n";dms'
@@ -95,6 +97,6 @@ fi
 unset -f f;
 }; f'
 
-export PATH=$PATH:~/git/myconfigs/maya:~/git/Mayastor/target/debug
+export PATH=$PATH:~/git/myconfigs/maya:~/git/Mayastor/target/debug:~/git/chief/target/debug
 export RUST_SRC_PATH=~/.rustup/toolchains/nightly-2020-07-26-x86_64-unknown-linux-gnu/lib/rustlib/src
 

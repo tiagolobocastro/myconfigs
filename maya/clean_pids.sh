@@ -11,4 +11,4 @@ QUERY=${2:-Mayastor\/target}
 # grep -v grep ignores the grep itself though there must be a 
 # nicer way of doing this...
 all=$(ps a -o pid --no-headers | xargs -I % readlink -f /proc/%/exe | grep $QUERY | grep -v grep)
-echo "$all" | xargs -I % pidof % | xargs -I % kill -$SIGNAL %
+echo "$all" | xargs -I % pidof % | tr ' ' '\n' | xargs -I % kill -$SIGNAL %

@@ -2,17 +2,17 @@ set -e
 
 export registry="192.168.1.137:5000"
 function mayastor() {
-    skopeo copy docker-archive:/$(nix-build -A images.mayastor-dev-image --no-out-link) --dest-tls-verify=false docker://$registry/mayastor:latest --insecure-policy
+    skopeo copy docker-archive:/$(nix-build -A images.mayastor-dev --no-out-link) --dest-tls-verify=false docker://$registry/mayadata/mayastor:latest --insecure-policy
 }
 function mayastorCsi() {
-    skopeo copy docker-archive:/$(nix-build -A images.mayastor-csi-image --no-out-link) --dest-tls-verify=false docker://$registry/mayastor-csi:latest --insecure-policy
+    skopeo copy docker-archive:/$(nix-build -A images.mayastor-csi --no-out-link) --dest-tls-verify=false docker://$registry/mayadata/mayastor-csi:latest --insecure-policy
 }
 function mayastorAll() {
     mayastor
     mayastorCsi
 }
 function moac() {
-    skopeo copy docker-archive:/$(nix-build -A images.moac-image --no-out-link) --dest-tls-verify=false docker://$registry/moac:latest --insecure-policy
+    skopeo copy docker-archive:/$(nix-build -A images.moac --no-out-link) --dest-tls-verify=false docker://$registry/mayadata/moac:latest --insecure-policy
 }
 function all() {
     mayastorAll
