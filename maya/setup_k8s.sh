@@ -6,7 +6,7 @@ DEPLOY_ORG=$MAYASTOR/deploy
 DEPLOY=/tmp/terraform/deploy
 TERRA=/tmp/terraform
 TERRA_ORG=$MAYASTOR/terraform
-NODES=4 # includes the master
+NODES=3 # includes the master
 MAX_NBD=4
 POOL_SIZE=16G
 POOL_LOCATION=/data
@@ -279,6 +279,7 @@ function installMayastorYaml() {
     REPO=$REPO TAG=$TAG envsubst '$REPO $TAG' < $DEPLOY/csi-daemonset.yaml | kubectl create -f -
     kubectl create -f $DEPLOY/mayastorpoolcrd.yaml
     kubectl create -f $DEPLOY/moac-rbac.yaml
+    kubectl create -f $DEPLOY/etcd/storage
     kubectl create -f $DEPLOY/etcd
     REPO=$REPO TAG=$TAG envsubst '$REPO $TAG' < $DEPLOY/moac-deployment.yaml | kubectl create -f -
     REPO=$REPO TAG=$TAG envsubst '$REPO $TAG' < $DEPLOY/mayastor-daemonset.yaml | kubectl create -f -
@@ -295,14 +296,17 @@ function removeMayastorYaml() {
     patchYamlImages
 
     set +e
-    REPO=$REPO TAG=$TAG envsubst '$REPO $TAG' < $DEPLOY/csi-daemonset.yaml | kubectl delete - 2>/dev/null
-    REPO=$REPO TAG=$TAG envsubst '$REPO $TAG' < $DEPLOY/mayastor-daemonset.yaml | kubectl delete - 2>/dev/null
+    REPO=$REPO TAG=$TAG envsubst '$REPO $TAG' < $DEPLOY/csi-daemonset.yaml | kubectl delete -f - 2>/dev/null
+    REPO=$REPO TAG=$TAG envsubst '$REPO $TAG' < $DEPLOY/mayastor-daemonset.yaml | kubectl delete -f - 2>/dev/null
     # MOAC now crashes if you delete this first!
     # kubectl delete -f $DEPLOY/mayastorpoolcrd.yaml 2>/dev/null
-    REPO=$REPO TAG=$TAG envsubst '$REPO $TAG' < $DEPLOY/moac-deployment.yaml | kubectl delete - 2>/dev/null
+    REPO=$REPO TAG=$TAG envsubst '$REPO $TAG' < $DEPLOY/moac-deployment.yaml | kubectl delete -f - 2>/dev/null
     kubectl delete -f $DEPLOY/nats-deployment.yaml 2>/dev/null
-    kubectl delete -f $DEPLOY/mayastorpoolcrd.yaml 2>/dev/null
     kubectl delete -f $DEPLOY/moac-rbac.yaml
+    kubectl delete -f $DEPLOY/etcd
+    kubectl -n mayastor delete pvc --all
+    kubectl delete -f $DEPLOY/etcd/storage
+    
     kubectl delete namespace mayastor
     set -e
 
@@ -392,7 +396,7 @@ EOF
     # Let's create a PVC
     kubectl create -f $DEPLOY/storage-class.yaml || true
     kubectl create -f $DEPLOY/pvc.yaml # ms-volume-claim
-    kubectl create -f $DEPLOY/fio.yaml
+    #kubectl create -f $DEPLOY/fio.yaml
 
     kubectl get pvc
     kubectl get pods

@@ -73,3 +73,4 @@ nnoremap <C-H> <C-W><C-H>
 
 nnoremap <silent> ` : vertical terminal<CR>
 
+au FileType gitcommit setlocal tw=100
