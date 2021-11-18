@@ -6,6 +6,8 @@ DEPLOY_ORG=$MAYASTOR/deploy
 DEPLOY=/tmp/terraform/deploy
 TERRA=/tmp/terraform
 TERRA_ORG=$MAYASTOR/terraform
+MCP=~/git/chief/
+#MCP=
 NODES=3 # includes the master
 MAX_NBD=4
 POOL_SIZE=16G
@@ -83,23 +85,27 @@ function waitForMayastorDS() {
     kubectl get pods -A
     exit 1
 }
-function waitForMoacDeployment() {
-    echo "Waiting for moac to come up..."
-    tries=50
-    while [[ $tries -gt 0 ]]; do
-        ready=$(kubectl -n mayastor get deployment moac -o jsonpath="{.status.readyReplicas}")
-        required=$(kubectl -n mayastor get deployment moac -o jsonpath="{.status.replicas}")
+function waitForMcpDeployment() {
+    for deployment in csi-controller msp-operator rest; do
+        echo "Waiting for $deployment to come up..."
+        tries=50
+        while [[ $tries -gt 0 ]]; do
+            ready=$(kubectl -n mayastor get deployment $deployment -o jsonpath="{.status.readyReplicas}")
+            required=$(kubectl -n mayastor get deployment $deployment -o jsonpath="{.status.replicas}")
 
+            if [[ $ready -eq $required ]]; then
+                break
+            fi
+
+            ((tries--))
+            sleep 3
+        done
         if [[ $ready -eq $required ]]; then
-            return
+            echo "Timed out waiting for $deployment..."
+            kubectl get pods -A
+            exit 1
         fi
-
-        ((tries--))
-        sleep 3
     done
-    echo "Timed out waiting for moac deployment..."
-    kubectl get pods -A
-    exit 1
 }
 
 function waitForMsn() {
@@ -184,7 +190,7 @@ function unTuneK8sNode() {
 }
 function unTuneK8sNodeLibVirt() {
     for i in $(seq 2 $NODES); do
-        virsh detach-disk ksnode-$i vdb || true
+        virsh detach-disk ksnode-$i vda || true
         rm -f $POOL_LOCATION/data$i.img 2>/dev/null || true
     done
 }
@@ -258,39 +264,72 @@ function restartK8S() {
 
 function patchYamlImages() {
     # Patch our k8s container images
-    for image in mayastor mayastor-csi moac; do
+    for image in mayastor mayastor-csi; do
         sed -i "s/image: .*\/$image:.*$/image: \$REPO\/$image:\$TAG/g" $DEPLOY/*.yaml
     done
+    if [[ ! $MCP = "" ]]; then
+        for image in mcp-csi-controller mcp-rest mcp-core mcp-jsongrpc mcp-msp-operator; do
+            sed -i "s/image: .*\/$image:.*$/image: \$REPO\/$image:\$TAG/g" $MCP/*.yaml
+        done
+    fi
     # Reduce memory and cpu
     sed -i "/-m0x3/d" $DEPLOY/mayastor-daemonset.yaml
     sed -i "s/cpu: \".\"/cpu: \"1\"/g" $DEPLOY/mayastor-daemonset.yaml
     # Add poll delay
     sed -i "s/IMPORT_NEXUSES/MAYASTOR_DELAY/g" $DEPLOY/mayastor-daemonset.yaml
+}
 
+function installMayastorCpYaml() {
+    patchYamlImages
+    set +e
+    kubectl create -f $MCP/mayastorpoolcrd.yaml
+    kubectl create -f $MCP/crd.yaml
+    kubectl create -f $MCP/jaeger-operator
+    REPO=$REPO TAG=$TAG envsubst '$REPO $TAG' < $MCP/rest-deployment.yaml | kubectl create -f -
+    REPO=$REPO TAG=$TAG envsubst '$REPO $TAG' < $MCP/core-agents-deployment.yaml | kubectl create -f -
+    REPO=$REPO TAG=$TAG envsubst '$REPO $TAG' < $MCP/csi-deployment.yaml | kubectl create -f -
+    REPO=$REPO TAG=$TAG envsubst '$REPO $TAG' < $MCP/msp-deployment.yaml | kubectl create -f -
+    REPO=$REPO TAG=$TAG envsubst '$REPO $TAG' < $MCP/msp-deployment.yaml | kubectl create -f -
+    kubectl create -f $MCP/operator-rbac.yaml
+    kubectl create -f $MCP/rest-service.yaml
+    set -e
 }
 function installMayastorYaml() {
     patchYamlImages
 
     # Ok now we're ready to apply some yaml!
     set +e
-    # Namespace, moac and mayastor
     kubectl create namespace mayastor
     kubectl create -f $DEPLOY/nats-deployment.yaml
     REPO=$REPO TAG=$TAG envsubst '$REPO $TAG' < $DEPLOY/csi-daemonset.yaml | kubectl create -f -
-    kubectl create -f $DEPLOY/mayastorpoolcrd.yaml
-    kubectl create -f $DEPLOY/moac-rbac.yaml
     kubectl create -f $DEPLOY/etcd/storage
     kubectl create -f $DEPLOY/etcd
-    REPO=$REPO TAG=$TAG envsubst '$REPO $TAG' < $DEPLOY/moac-deployment.yaml | kubectl create -f -
     REPO=$REPO TAG=$TAG envsubst '$REPO $TAG' < $DEPLOY/mayastor-daemonset.yaml | kubectl create -f -
     set -e
-
-    add_storage
-
+    
     # Wait for them to come up
     waitForMayastorDS
-    waitForMoacDeployment
+    
+    if [ -n "$MCP" ]; then
+        installMayastorCpYaml
+        add_storage
+        waitForMcpDeployment
+    fi
+
     kubectl -n mayastor get pods
+}
+function removeMayastorCpYaml() {
+    patchYamlImages
+    set +e
+    REPO=$REPO TAG=$TAG envsubst '$REPO $TAG' < $MCP/rest-deployment.yaml | kubectl delete -f - 2>/dev/null
+    REPO=$REPO TAG=$TAG envsubst '$REPO $TAG' < $MCP/core-agents-deployment.yaml | kubectl delete -f - 2>/dev/null
+    REPO=$REPO TAG=$TAG envsubst '$REPO $TAG' < $MCP/csi-deployment.yaml | kubectl create -f - 2>/dev/null
+    REPO=$REPO TAG=$TAG envsubst '$REPO $TAG' < $MCP/msp-deployment.yaml | kubectl create -f - 2>/dev/null
+    kubectl delete -f $MCP/operator-rbac.yaml 2>/dev/null
+    kubectl delete -f $MCP/rest-service.yaml 2>/dev/null
+    kubectl delete -f $MCP/mayastorpoolcrd.yaml 2>/dev/null
+    kubectl delete -f $MCP/jaeger-operator 2>/dev/null || true
+    set -e
 }
 function removeMayastorYaml() {
     patchYamlImages
@@ -298,14 +337,11 @@ function removeMayastorYaml() {
     set +e
     REPO=$REPO TAG=$TAG envsubst '$REPO $TAG' < $DEPLOY/csi-daemonset.yaml | kubectl delete -f - 2>/dev/null
     REPO=$REPO TAG=$TAG envsubst '$REPO $TAG' < $DEPLOY/mayastor-daemonset.yaml | kubectl delete -f - 2>/dev/null
-    # MOAC now crashes if you delete this first!
-    # kubectl delete -f $DEPLOY/mayastorpoolcrd.yaml 2>/dev/null
-    REPO=$REPO TAG=$TAG envsubst '$REPO $TAG' < $DEPLOY/moac-deployment.yaml | kubectl delete -f - 2>/dev/null
     kubectl delete -f $DEPLOY/nats-deployment.yaml 2>/dev/null
-    kubectl delete -f $DEPLOY/moac-rbac.yaml
     kubectl delete -f $DEPLOY/etcd
     kubectl -n mayastor delete pvc --all
     kubectl delete -f $DEPLOY/etcd/storage
+    removeMayastorCpYaml
     
     kubectl delete namespace mayastor
     set -e
@@ -410,8 +446,7 @@ function terraform_setup_force() {
     mkdir -p $DEPLOY
     cp -r $TERRA_ORG/* $TERRA
     cp -rp $DEPLOY_ORG/* $DEPLOY
-    rm $DEPLOY/mayastorpoolcrd.yaml
-    cp $DEPLOY_ORG/mayastorpoolcrd.yaml $DEPLOY/mayastorpoolcrd.yaml
+    rm $DEPLOY/mayastorpool.yaml || true
 }
 function terraform_setup() {
     if [ ! -d $DEPLOY ]; then
@@ -427,8 +462,10 @@ function terraform_prepare() {
     sed -i "s/#default     = \"ssh-rsa/default     = \"ssh-rsa/g" "$TERRA/variables.tf"
     sed -i "/description = \"The size of the root disk in bytes\"$/{N;s/description = \"The size of the root disk in bytes\"\n  default     = 6442450944/description = \"The size of the root disk in bytes\"\n  default     = $OS_DISK_SIZE/}" "$TERRA/variables.tf"
 
-    sed -i "s/required_version = \">= 0.13\"/required_version = \">= 0.12\"/" "$TERRA/mod/libvirt/main.tf"
-    sed -i "/required_providers {/,+5d" "$TERRA/mod/libvirt/main.tf"
+    sed -i "s/dmacvicar/nixpkgs/" "$TERRA/mod/libvirt/main.tf"
+    sed -i "s/version = \"0\.6\.2\"/version = \"0\.6\.3\"/" "$TERRA/mod/libvirt/main.tf"
+
+    sed -i "s/gilanetes/castrol/" "$TERRA/mod/k8s/kubeadm_config.yaml"
 
     sed -i "s~\.\.\.~$SSH_KEY~g" "$TERRA/variables.tf"
 

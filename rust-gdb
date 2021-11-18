@@ -1,2 +1,16 @@
 export PATH="$HOME/.cargo/bin:$PATH"
-rust-gdb "$@" 
+
+# try to get the right rust_src
+if [ -z $RUST_SRC ]; then
+    for rustc in $(whereis rustc); do
+        if [ ! -f $rustc ]; then continue; fi
+        rust_src="$("$rustc" --print sysroot)"
+        rust_src="$rust_src"/lib/rustlib/src/rust/
+        if [ -d "$rust_src" ]; then
+            echo "Found rust source: $rust_src"
+            export RUST_SRC="$rust_src"
+        fi
+    done
+
+fi
+rust-gdb "$@" --directory="$RUST_SRC"

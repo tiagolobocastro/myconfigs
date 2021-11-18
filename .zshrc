@@ -66,24 +66,25 @@ export EDITOR=vim
 alias ww=$'watch '
 alias mk=$'sudo /home/tiago/git/myconfigs/maya/clean_pids.sh'
 alias k=$'kubectl'
-alias kk=$'kubectl -n mayastor'
-alias p=$'kk get pods -o wide'
+alias km=$'kubectl -n mayastor'
+alias p=$'km get pods -o wide'
 alias pp=$'k get pods -A'
-alias dmm=$'kk describe pod -l app=moac | head'
-alias fm=$'kk logs --follow -lapp=moac -c moac --tail=-1'
-alias fml='kk logs -lapp=moac -c moac --tail=-1 | less'
-alias dms=$'kk get pods -l app=mayastor -o name | xargs -I % sh -c "kubectl -n mayastor describe % | head -n 4"'
-alias dmn=$'kk get pods -l app=nats -o name | xargs -I % sh -c "kubectl -n mayastor describe % | head -n 4"'
+alias dmm=$'km describe pod -l app=moac | head'
+alias fm=$'km logs --follow -lapp=moac -c moac --tail=-1'
+alias fml='km logs -lapp=moac -c moac --tail=-1 | less'
+alias dms=$'km get pods -l app=mayastor -o name | xargs -I % sh -c "kubectl -n mayastor describe % | head -n 4"'
+alias dmn=$'km get pods -l app=nats -o name | xargs -I % sh -c "kubectl -n mayastor describe % | head -n 4"'
 alias dm=$'dmm;dmn;echo -e "\n";dms'
 alias dmc=$'dmm;dmn'
 alias wv=$'watch -d "kubectl -n mayastor describe msv | tail -n 30"'
+alias ks='kubectl -n kube-system'
 
 alias fms='f(){
-kk logs --follow $1 mayastor --tail=-1
+km logs --follow $1 mayastor --tail=-1
 unset -f f;
 }; f'
 alias ss='f(){
-kk exec $1 -c mayastor --stdin --tty -- /sbin/sh 
+km exec $1 -c mayastor --stdin --tty -- /sbin/sh 
 unset -f f;
 }; f'
 
