@@ -47,6 +47,8 @@
     ];
   };
 
+  programs.ssh.extraConfig = "ServerAliveInterval 15\nServerAliveCountMax 3";
+
   users.users.tiago = {
     description = "Tiago Castro";
     isNormalUser = true;
@@ -56,7 +58,7 @@
 
   nix.gc = {
     automatic = true;
-    dates = "daily";
+    dates = "weekly";
   };
 
   nix.extraOptions = ''

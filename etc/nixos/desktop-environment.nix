@@ -1,7 +1,4 @@
 { config, lib, pkgs, ... }: 
-let
-  mine = import /home/tiago/git/nixpkgs { config = config.nixpkgs.config; };
-in
 {
   # Enable the KDE Desktop Environment
   services.xserver.displayManager.sddm.enable = true;
@@ -20,7 +17,7 @@ in
     firefox-bin chromium
 
     # Office
-    mine.p3x-onenote
+    #p3x-onenote
 
     # Kde specific
     kate kcalc spectacle yakuake ark partition-manager kdesu

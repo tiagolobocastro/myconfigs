@@ -1,15 +1,12 @@
 { config, lib, pkgs, ... }:
 
 let
-  unstable = import
-    (builtins.fetchTarball https://github.com/NixOS/nixpkgs/archive/nixos-unstable.tar.gz)
-    # reuse the current configuration
-    { config = config.nixpkgs.config; };
+  unstable = import <nixos-unstable> { config = config.nixpkgs.config; };
 in
 {
   environment.systemPackages = with pkgs; [
     # Basic
-    wget git nixfmt manpages unzip 
+    wget git nixfmt manpages unzip tree
     ((vim_configurable.override { python = python3; }).customize{
       name = "vim";
       vimrcConfig.packages.myplugins = with pkgs.vimPlugins; {
@@ -33,10 +30,17 @@ in
     nodejs yarn fzf silver-searcher # used by vim plugins
 
     # Sync Data 
-    unstable.onedrive 
+    onedrive 
 
     bitwarden
+
+    ntfs3g
+
+    teamviewer
+
+    latencytop
   ];
 
-  services.onedrive.enable = true;
+  services.teamviewer.enable = false;
+  services.onedrive.enable = false;
 }
