@@ -1,5 +1,7 @@
 { config, lib, pkgs, ... }: {
-  #systemd.services.lxd.path = with pkgs; [ lvm2 thin-provisioning-tools e2fsprogs ];
+  # lxd should be enabled...
+  systemd.services.lxd.path = with pkgs; [ lvm2 thin-provisioning-tools e2fsprogs ];
+
   services.dockerRegistry = {
     enable = true;
     listenAddress = "0.0.0.0";

@@ -1,10 +1,9 @@
 { config, pkgs, lib, ... }: 
 let
-  hostName = lib.removeSuffix "\n" (builtins.readFile ./hostname);
-  hostNixPath = (./. + "/${hostName}");
+  host = import ./host.nix { inherit lib; };
 in
 {
-  imports = [ (hostNixPath + "/extra-development.nix") ];
+  imports = [ (host.import "/extra-development.nix") ];
 
   nixpkgs.config.allowUnfree = true;
 

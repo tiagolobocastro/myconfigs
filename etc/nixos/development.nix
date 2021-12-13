@@ -1,15 +1,14 @@
-{ config, lib, pkgs, hostNixPath,  ... }: 
+{ config, lib, pkgs, ... }:
 
 let
   unstable = import<nixos-unstable> { config = config.nixpkgs.config; };
-  hostName = lib.removeSuffix "\n" (builtins.readFile ./hostname);
-  hostNixPath = (./. + "/${hostName}");
+  host = import ./host.nix { inherit lib; };
 in
 {
   imports = [
     ./vscode.nix
     ./iscsid.nix
-    (hostNixPath + "/extra-development.nix")
+    (host.import "/extra-development.nix")
   ];
 
   # vscode configuration
@@ -53,6 +52,7 @@ in
     meld
 
     # Container development
+    lxd thin-provisioning-tools lvm2 e2fsprogs
     skopeo
     envsubst
     

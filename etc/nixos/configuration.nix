@@ -1,7 +1,6 @@
 { config, lib, pkgs, ... }:
-let 
-  hostName = lib.removeSuffix "\n" (builtins.readFile ./hostname);
-  hostNixPath = (./. + "/${hostName}");
+let
+  host = import ./host.nix { inherit lib; };
 in
 {
   imports =
@@ -15,9 +14,9 @@ in
       ./desktop-environment.nix
       ./development.nix
 
-      (hostNixPath + "/hardware.nix")
-      (hostNixPath + "/extra-configuration.nix")
-      (hostNixPath + "/lang-fonts.nix")
+      (host.import "/hardware.nix")
+      (host.import "/extra-configuration.nix")
+      (host.import "/lang-fonts.nix")
     ];
 
   # for now
