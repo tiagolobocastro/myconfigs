@@ -1,9 +1,5 @@
-{ config, lib, pkgs, ... }: 
-let
-  unstable = import<nixos-unstable> { config = config.nixpkgs.config; };
-in
-{
-  
+{ config, pkgs, ... }: {
+
   # Use the GRUB 2 boot loader.
   boot.loader.grub.enable = true;
   boot.loader.grub.version = 2;
@@ -15,10 +11,9 @@ in
   boot.loader.systemd-boot.enable = true;
 
   boot = {
-    kernelPackages = unstable.linuxPackages_latest;
+    kernelPackages = pkgs.linuxPackages_latest;
     kernelParams = [ "mitigations=off" "coretemp" ];
     kernelModules = [
-      #"brd"
       "nbd"
       "nvmet"
       "nvmet-tcp"
@@ -34,10 +29,10 @@ in
       "dm_thin_pool"
     ];
     extraModprobeConfig = ''
-      options kvm_amd nested=1
+      options kvm_intel nested=1
       options nf_conntrack hashsize=393216
     '';
-    kernel.sysctl = { "vm.nr_hugepages" = 4096; };
+    kernel.sysctl = { "vm.nr_hugepages" = 2560; };
   };
 
   # Enable sound.

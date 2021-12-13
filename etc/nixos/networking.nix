@@ -1,6 +1,10 @@
-{ config, lib, pkgs, ... }: {
+{ config, lib, pkgs, ... }:
+let
+  hostName = lib.removeSuffix "\n" (builtins.readFile ./hostname);
+in {
 
-  networking.hostName = "lobox";
+  networking.hostName = hostName;
+
   networking.wireless.enable = false;  # Enables wireless support via wpa_supplicant.
   networking.networkmanager.enable = true; # Because we're not in the stone age
 
@@ -14,7 +18,6 @@
   networking.useDHCP = false;
   networking.interfaces.enp34s0.useDHCP = true;
   networking.interfaces.wlo1.useDHCP = true;
-
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];

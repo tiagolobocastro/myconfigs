@@ -1,28 +1,16 @@
-{ config, lib, pkgs,  ... }: 
+{ config, lib, pkgs, hostNixPath,  ... }: 
 
 let
   unstable = import<nixos-unstable> { config = config.nixpkgs.config; };
+  hostName = lib.removeSuffix "\n" (builtins.readFile ./hostname);
+  hostNixPath = (./. + "/${hostName}");
 in
 {
-  imports = [ ./vscode.nix ./iscsid.nix ];
-
-  # Containers and virtual machines
-  virtualisation = {
-    libvirtd = {
-      enable = true;
-      qemuOvmf = true;
-      qemuRunAsRoot = true;
-      onBoot = "ignore";
-      onShutdown = "shutdown";
-    };
-    lxd = { enable = true; };
-    docker = {
-      enable = true;
-      extraOptions = ''
-        --insecure-registry 192.168.1.137:5000
-      '';
-    };
-  };
+  imports = [
+    ./vscode.nix
+    ./iscsid.nix
+    (hostNixPath + "/extra-development.nix")
+  ];
 
   # vscode configuration
   vscode.user = "tiago";
@@ -39,14 +27,10 @@ in
     # Debugger
     gdb
 
-    brave
-
     # GUIs
-    drawio
-    jetbrains.goland
-    unstable.idea.idea-community
     unstable.jetbrains.clion
 
+    # GIT
     (pkgs.smartgithg.overrideAttrs (oldAttrs: rec {
       version = "21.1.3";
       src = fetchurl {
@@ -69,54 +53,23 @@ in
     meld
 
     # Container development
-    lxd thin-provisioning-tools lvm2 e2fsprogs
     skopeo
     envsubst
     
     # MayaData requirements
     unstable.slack
-    discord
-    zoom-us
-    jitsi-meet-electron
-    openiscsi
     rustup
-    #(terraform.withPlugins(p: [
-    #  p.null
-    #  p.template
-    #  p.kubernetes
-    #  p.lxd
-    #  p.libvirt
-    #  p.helm
-    #]))
-    unstable.terraform-full
-    ansible virt-manager
-    kubectl k9s 
     kubernetes-helm
-
-    # Golang
-    go pkg-config alsaLib gopls
-
-    linuxPackages.bpftrace
-
-    # Java
-    jdk11
+    niv
 
     # Formats
     jq
 
     # Networking
-    tcpdump
-    wireshark
     unstable.curl
 
-    #gpg
+    # gpg keys
     kgpg gnupg pinentry-curses
-
-    zerotierone
-
-    niv
-    cntr
-    direnv
 
     # DataCore
     unstable.teams
@@ -124,9 +77,6 @@ in
     # Used by tmux
     xclip
   ];
-  services.zerotierone = {
-    enable = false;
-  };
 
   programs.gnupg.agent = {
     enable = true;

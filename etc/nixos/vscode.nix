@@ -13,9 +13,6 @@
         nixpkgs.overlays = [
             (self: super:
                 let unstable = import<nixos-unstable> { config = config.nixpkgs.config; };
-                #let latestPkgs = import (fetchTarball https://github.com/nixos/nixpkgs-channels/archive/nixpkgs-unstable.tar.gz) {
-                #        config.allowUnfree = true;
-                #    };
                 in lib.genAttrs config.nixpkgs.latestPackages (pkg: unstable."${pkg}")
             )
         ];
