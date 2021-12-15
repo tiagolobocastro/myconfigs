@@ -1,9 +1,7 @@
-{ config, lib, pkgs,  ... }: 
+{ config, lib, pkgs, ... }:
 
-let
-  unstable = import<nixos-unstable> { config = config.nixpkgs.config; };
-in
-{
+let unstable = import <nixos-unstable> { config = config.nixpkgs.config; };
+in {
   # Containers and virtual machines
   virtualisation = {
     libvirtd = {
@@ -27,16 +25,24 @@ in
     drawio
 
     # Container development
-    lxd thin-provisioning-tools lvm2 e2fsprogs
+    lxd
+    thin-provisioning-tools
+    lvm2
+    e2fsprogs
 
     # Kubernetes    
     unstable.terraform-full
-    ansible virt-manager
-    kubectl k9s 
+    ansible
+    virt-manager
+    kubectl
+    k9s
 
     # Golang
     jetbrains.goland
-    go pkg-config alsaLib gopls 
+    go
+    pkg-config
+    alsaLib
+    gopls
 
     # DBG
     linuxPackages.bpftrace
@@ -53,7 +59,5 @@ in
     direnv
   ];
 
-  services.zerotierone = {
-    enable = false;
-  };
+  services.zerotierone = { enable = false; };
 }

@@ -1,23 +1,20 @@
 { config, lib, pkgs, ... }:
-let
-  host = import ./host.nix { inherit lib; };
-in
-{
-  imports =
-    [
-      # Include the results of the hardware scan.
-      ./hardware-configuration.nix
+let host = import ./host.nix { inherit lib; };
+in {
+  imports = [
+    # Include the results of the hardware scan.
+    ./hardware-configuration.nix
 
-      ./networking.nix
-      ./system-packages.nix
-      ./services.nix
-      ./desktop-environment.nix
-      ./development.nix
+    ./networking.nix
+    ./system-packages.nix
+    ./services.nix
+    ./desktop-environment.nix
+    ./development.nix
 
-      (host.import "/hardware.nix")
-      (host.import "/extra-configuration.nix")
-      (host.import "/lang-fonts.nix")
-    ];
+    (host.import "/hardware.nix")
+    (host.import "/extra-configuration.nix")
+    (host.import "/lang-fonts.nix")
+  ];
 
   # for now
   security.sudo.wheelNeedsPassword = false;
@@ -34,9 +31,10 @@ in
       export REAL_PAGER=$PAGER
       export NIX_PAGER=cat
     '';
-    promptInit = "source ${pkgs.zsh-powerlevel10k}/share/zsh-powerlevel10k/powerlevel10k.zsh-theme";
+    promptInit =
+      "source ${pkgs.zsh-powerlevel10k}/share/zsh-powerlevel10k/powerlevel10k.zsh-theme";
     ohMyZsh.enable = true;
-    ohMyZsh.plugins = [ 
+    ohMyZsh.plugins = [
       "sudo"
       "docker"
       "history-substring-search"
@@ -51,23 +49,17 @@ in
     ];
   };
 
-  programs.ssh.extraConfig = "ServerAliveInterval 15\nServerAliveCountMax 3";
+  programs.ssh.extraConfig = ''
+    ServerAliveInterval 15
+    ServerAliveCountMax 3'';
 
   users.users.tiago = {
     description = "Tiago Castro";
     isNormalUser = true;
-    extraGroups = [ "wheel" "libvirtd" "docker" "lxd" "lxc" "fuse" "networkmanager"];
+    extraGroups =
+      [ "wheel" "libvirtd" "docker" "lxd" "lxc" "fuse" "networkmanager" ];
     shell = pkgs.zsh;
   };
-
-  nix.gc = {
-    automatic = true;
-    dates = "weekly";
-  };
-
-  nix.extraOptions = ''
-    min-free = ${toString (65 * 1024 * 1024 * 1024)}
-  '';
 
   services.fstrim.enable = true;
 }

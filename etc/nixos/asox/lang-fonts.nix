@@ -12,8 +12,7 @@
 
   fonts = {
     fontDir.enable = true;
-    fonts = with pkgs; [
-      (nerdfonts.override { fonts = [ "Hasklig" "FiraCode" ]; })
-    ];
+    fonts = with pkgs;
+      [ (nerdfonts.override { fonts = [ "Hasklig" "FiraCode" ]; }) ];
   };
 }

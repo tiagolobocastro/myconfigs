@@ -1,8 +1,6 @@
-{ config, pkgs, lib, ... }: 
-let
-  host = import ./host.nix { inherit lib; };
-in
-{
+{ config, pkgs, lib, ... }:
+let host = import ./host.nix { inherit lib; };
+in {
   imports = [ (host.import "/extra-development.nix") ];
 
   nixpkgs.config.allowUnfree = true;
@@ -17,18 +15,29 @@ in
   # Desktop Apps
   environment.systemPackages = with pkgs; [
     # Browsers
-    firefox-bin chromium brave
+    firefox-bin
+    chromium
+    brave
 
     # Office
     #p3x-onenote
 
     # Kde specific
-    kate kcalc spectacle yakuake ark partition-manager
+    kate
+    kcalc
+    spectacle
+    yakuake
+    ark
+    partition-manager
 
     # Monitoring
-    htop inxi lm_sensors pciutils
+    htop
+    inxi
+    lm_sensors
+    pciutils
 
     # Misc
-    terminator gparted
+    terminator
+    gparted
   ];
 }

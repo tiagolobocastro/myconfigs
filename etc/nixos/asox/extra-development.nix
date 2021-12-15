@@ -1,9 +1,7 @@
-{ config, lib, pkgs,  ... }: 
+{ config, lib, pkgs, ... }:
 
-let
-  unstable = import<nixos-unstable> { config = config.nixpkgs.config; };
-in
-{
+let unstable = import <nixos-unstable> { config = config.nixpkgs.config; };
+in {
   # Containers and virtual machines
   virtualisation = {
     libvirtd = {

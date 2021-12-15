@@ -1,6 +1,5 @@
 { config, stdenv, pkgs, lib, ... }:
-with lib;
-{
+with lib; {
   options = {
     services.iscsid = {
       enable = mkOption {

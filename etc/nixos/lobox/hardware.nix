@@ -1,9 +1,7 @@
-{ config, lib, pkgs, ... }: 
-let
-  unstable = import<nixos-unstable> { config = config.nixpkgs.config; };
-in
-{
-  
+{ config, lib, pkgs, ... }:
+let unstable = import <nixos-unstable> { config = config.nixpkgs.config; };
+in {
+
   # Use the GRUB 2 boot loader.
   boot.loader.grub.enable = true;
   boot.loader.grub.version = 2;

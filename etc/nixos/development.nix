@@ -1,26 +1,17 @@
 { config, lib, pkgs, ... }:
 
 let
-  unstable = import<nixos-unstable> { config = config.nixpkgs.config; };
+  unstable = import <nixos-unstable> { config = config.nixpkgs.config; };
   host = import ./host.nix { inherit lib; };
-in
-{
-  imports = [
-    ./vscode.nix
-    ./iscsid.nix
-    (host.import "/extra-development.nix")
-  ];
+in {
+  imports =
+    [ ./vscode.nix ./iscsid.nix (host.import "/extra-development.nix") ];
 
   # vscode configuration
   vscode.user = "tiago";
   vscode.homeDir = "/home/tiago";
-  vscode.extensions = with pkgs.vscode-extensions; [
-    ms-vscode.cpptools
-  ];
-  nixpkgs.latestPackages = [
-    "vscode"
-    "vscode-extensions"
-  ];
+  vscode.extensions = with pkgs.vscode-extensions; [ ms-vscode.cpptools ];
+  nixpkgs.latestPackages = [ "vscode" "vscode-extensions" ];
 
   environment.systemPackages = with pkgs; [
     # Debugger
@@ -33,29 +24,45 @@ in
     (pkgs.smartgithg.overrideAttrs (oldAttrs: rec {
       version = "21.1.3";
       src = fetchurl {
-        url = "https://www.syntevo.com/downloads/smartgit/smartgit-linux-21_1_3.tar.gz";
+        url =
+          "https://www.syntevo.com/downloads/smartgit/smartgit-linux-21_1_3.tar.gz";
         sha256 = "1ic5rz2ywpmk4ay338nhxsmfc0rspqrw7nmavg3dbv8vbi2dabsk";
       };
       desktopItem = oldAttrs.desktopItem.overrideAttrs (desktopAttrs: {
-        buildCommand =
-          let
-            oldExec = builtins.match ".*(Exec=[^\n]+\n).*" desktopAttrs.buildCommand;
-            oldTerminal = builtins.match ".*(Terminal=[^\n]+\n).*" desktopAttrs.buildCommand;
-            matches = oldExec ++ oldTerminal;
-            replacements = [ "Exec=/home/tiago/git/myconfigs/maya/smargit.sh\n" "Terminal=true\n" ];
-          in
-          assert builtins.length matches == builtins.length replacements;
-          builtins.replaceStrings matches replacements desktopAttrs.buildCommand;
+        buildCommand = let
+          oldExec = builtins.match ''
+            .*(Exec=[^
+            ]+
+            ).*'' desktopAttrs.buildCommand;
+          oldTerminal = builtins.match ''
+            .*(Terminal=[^
+            ]+
+            ).*'' desktopAttrs.buildCommand;
+          matches = oldExec ++ oldTerminal;
+          replacements = [
+            ''
+              Exec=/home/tiago/git/myconfigs/maya/smargit.sh
+            ''
+            ''
+              Terminal=true
+            ''
+          ];
+        in assert builtins.length matches == builtins.length replacements;
+        builtins.replaceStrings matches replacements desktopAttrs.buildCommand;
       });
-      postInstall = builtins.replaceStrings [ "${oldAttrs.desktopItem}" ] [ "${desktopItem}" ] (oldAttrs.postInstall or "");
+      postInstall = builtins.replaceStrings [ "${oldAttrs.desktopItem}" ]
+        [ "${desktopItem}" ] (oldAttrs.postInstall or "");
     }))
     meld
 
     # Container development
-    lxd thin-provisioning-tools lvm2 e2fsprogs
+    lxd
+    thin-provisioning-tools
+    lvm2
+    e2fsprogs
     skopeo
     envsubst
-    
+
     # MayaData requirements
     unstable.slack
     rustup
@@ -69,7 +76,9 @@ in
     unstable.curl
 
     # gpg keys
-    kgpg gnupg pinentry-curses
+    kgpg
+    gnupg
+    pinentry-curses
 
     # DataCore
     unstable.teams
@@ -110,6 +119,6 @@ in
 
       # For vi copy mode bindings
       bind-key -T copy-mode-vi MouseDragEnd1Pane send-keys -X copy-pipe-and-cancel "xclip -selection clipboard -i"
-    '';  
+    '';
   };
 }
