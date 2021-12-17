@@ -54,7 +54,12 @@ HISTSIZE=50000
 source $ZSH_CUSTOM/themes/powerlevel10k/powerlevel10k.zsh-theme 2>/dev/null
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+if [ -n "$IN_NIX_SHELL" ]; then
+  [[ ! -f ~/.p10k-nix-shell.zsh ]] || source ~/.p10k-nix-shell.zsh
+  POWERLEVEL9K_LINUX_NIXOS_ICON='\uE619'
+else
+  [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+fi
 
 # Manjaro only
 POWERLEVEL9K_LINUX_MANJARO_ICON='\uF312'
