@@ -32,10 +32,11 @@ in {
     # Basic
     wget
     git
-    nixfmt
+    nixfmt nixpkgs-fmt
     manpages
     unzip
     tree
+    exa
 
     ((vim_configurable.override { python = python3; }).customize {
       name = "vim";

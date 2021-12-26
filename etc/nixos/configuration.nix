@@ -3,7 +3,7 @@ let host = import ./host.nix { inherit lib; };
 in {
   imports = [
     # Include the results of the hardware scan.
-    ./hardware-configuration.nix
+    /etc/nixos/hardware-configuration.nix
 
     ./networking.nix
     ./system-packages.nix
