@@ -1,5 +1,4 @@
-{ config, lib, pkgs, ... }:
-
+{ config, pkgs, lib, ... }:
 let
   unstable = import <nixos-unstable> { config = config.nixpkgs.config; };
   myplugins = with pkgs.vimPlugins; {
@@ -27,17 +26,9 @@ let
       source $myvim/vim/vim.vim
     endif
   '';
-in {
+in
+{
   environment.systemPackages = with pkgs; [
-    # Basic
-    wget
-    git
-    nixfmt nixpkgs-fmt
-    manpages
-    unzip
-    tree
-    exa
-
     ((vim_configurable.override { python = python3; }).customize {
       name = "vim";
       vimrcConfig.packages.myplugins = myplugins;
@@ -55,14 +46,5 @@ in {
     yarn
     fzf
     silver-searcher
-
-    # Sync Data 
-    #onedrive
-
-    #ntfs3g
-
-    latencytop
   ];
-
-  #services.onedrive.enable = false;
 }

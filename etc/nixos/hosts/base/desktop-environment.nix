@@ -1,8 +1,4 @@
-{ config, pkgs, lib, ... }:
-let host = import ./host.nix { inherit lib; };
-in {
-  imports = [ (host.import "/extra-development.nix") ];
-
+{ config, pkgs, lib, ... }: {
   nixpkgs.config.allowUnfree = true;
 
   # Enable the KDE Desktop Environment

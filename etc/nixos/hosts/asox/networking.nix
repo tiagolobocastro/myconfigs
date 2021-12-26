@@ -1,8 +1,8 @@
 { config, lib, pkgs, ... }:
-let hostName = lib.removeSuffix "\n" (builtins.readFile ./hostname);
-in {
-
-  networking.hostName = hostName;
+let host = import ../host.nix { inherit lib; };
+in
+{
+  networking.hostName = host.name;
 
   networking.wireless.enable =
     false; # Enables wireless support via wpa_supplicant.
@@ -16,8 +16,8 @@ in {
   # Per-interface useDHCP will be mandatory in the future, so this generated config
   # replicates the default behaviour.
   networking.useDHCP = false;
-  networking.interfaces.enp34s0.useDHCP = true;
-  networking.interfaces.wlo1.useDHCP = true;
+  networking.interfaces.enp4s0.useDHCP = true;
+  networking.interfaces.wlp3s0.useDHCP = true;
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];

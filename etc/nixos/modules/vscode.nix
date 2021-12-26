@@ -15,7 +15,8 @@
         let
           unstable =
             import <nixos-unstable> { config = config.nixpkgs.config; };
-        in lib.genAttrs config.nixpkgs.latestPackages (pkg: unstable."${pkg}"))
+        in
+        lib.genAttrs config.nixpkgs.latestPackages (pkg: unstable."${pkg}"))
     ];
     # END DIRTY HACK
     ###
