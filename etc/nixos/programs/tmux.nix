@@ -1,7 +1,6 @@
 { config, lib, pkgs, ... }:
 let
   unstable = import <nixos-unstable> { config = config.nixpkgs.config; };
-  host = import ./host.nix { inherit lib; };
 in
 {
   programs.tmux = {

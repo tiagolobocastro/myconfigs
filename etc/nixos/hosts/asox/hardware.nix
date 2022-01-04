@@ -33,7 +33,7 @@
       options kvm_intel nested=1
       options nf_conntrack hashsize=393216
     '';
-    kernel.sysctl = { "vm.nr_hugepages" = 2560; };
+    kernel.sysctl = { "vm.nr_hugepages" = 2048; };
   };
 
   # Enable sound.

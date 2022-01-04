@@ -7,6 +7,6 @@
   services.xserver.layout = "gb";
   services.xserver.xkbOptions = "eurosign:e"; # what's this for??
 
-  services.flatpak.enable = false;
+  #services.flatpak.enable = true;
   #xdg.portal.extraPortals = [ pkgs.xdg-desktop-portal-gtk pkgs.xdg-desktop-portal-kde ];
 }

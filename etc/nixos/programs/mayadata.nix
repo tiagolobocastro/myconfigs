@@ -1,18 +1,12 @@
 { config, lib, pkgs, ... }:
-
 let
   unstable = import <nixos-unstable> { config = config.nixpkgs.config; };
-  host = import ../host.nix { inherit lib; };
 in
 {
-  imports = [ ../../programs/vscode.nix ];
+  imports = [ ./rust.nix ./smartgit.nix ];
 
   environment.systemPackages = with pkgs; [
-    # Debugger
-    gdb
-
-    # GUIs
-    unstable.jetbrains.clion
+    git
     # Visual Diff
     meld
 
@@ -24,33 +18,26 @@ in
     skopeo
     envsubst
 
-    # MayaData requirements
-    unstable.slack
-    rustup
+    # k8s
     kubernetes-helm
+    kubectl
+    k9s
+
+    # Social Networking
+    unstable.slack
+    unstable.teams
+
+    # Update sources.nix
     niv
 
     # Formats
     jq
 
-    # Networking
+    # OpenApi devel
     unstable.curl
-
-    # gpg keys
-    kgpg
-    gnupg
-    pinentry-curses
-
-    # DataCore
-    unstable.teams
   ];
 
-  programs.gnupg.agent = {
-    enable = true;
-    enableSSHSupport = true;
-    #pinentryFlavor = "curses";
-  };
-
+  # Mayastor and ctrlp are tested using containers
   virtualisation = {
     docker = {
       enable = true;
@@ -59,6 +46,7 @@ in
       '';
     };
   };
+  # Local registry to test local images
   services.dockerRegistry = {
     enable = true;
     listenAddress = "0.0.0.0";

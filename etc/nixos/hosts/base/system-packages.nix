@@ -14,6 +14,12 @@
     #onedrive
 
     #ntfs3g
+
+    # Monitoring
+    htop
+    inxi
+    lm_sensors
+    pciutils
   ];
   #services.onedrive.enable = false;
 }

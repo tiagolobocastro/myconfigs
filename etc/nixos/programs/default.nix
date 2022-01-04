@@ -4,5 +4,6 @@
     ./vim.nix
     ./vscode.nix
     ./zsh.nix
+    ./tmux.nix
   ];
 }

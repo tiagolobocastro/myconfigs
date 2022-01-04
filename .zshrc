@@ -48,7 +48,7 @@ setopt HIST_IGNORE_SPACE
 setopt HIST_FIND_NO_DUPS
 setopt HIST_SAVE_NO_DUPS
 setopt HIST_BEEP
-HISTSIZE=50000
+HISTSIZE=100000
 
 # Not great to hide erros though :(
 source $ZSH_CUSTOM/themes/powerlevel10k/powerlevel10k.zsh-theme 2>/dev/null
@@ -104,5 +104,7 @@ unset -f f;
 }; f'
 
 export PATH=$PATH:~/git/myconfigs/maya:~/git/Mayastor/target/debug:~/git/chief/target/debug
-export RUST_SRC_PATH=~/.rustup/toolchains/nightly-2020-07-26-x86_64-unknown-linux-gnu/lib/rustlib/src
 
+if rustup default | cut -d' ' -f1 >/dev/null; then
+  export RUST_SRC_PATH=~/.rustup/toolchains/$(rustup default | cut -d' ' -f1)/lib/rustlib/src
+fi

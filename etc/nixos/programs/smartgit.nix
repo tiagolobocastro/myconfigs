@@ -43,5 +43,5 @@ in
         [ "${desktopItem}" ]
         (oldAttrs.postInstall or "");
     }))
-  ]
-    }
+  ];
+}

@@ -2,7 +2,7 @@
 let
   name = lib.removeSuffix "\n" (builtins.readFile /etc/nixos/hostname);
   nixPath = (./. + "/${name}");
-  import = file: nixPath + file;
+  hostSpecificFile = file: nixPath + file;
 
   makeHost =
     {
@@ -13,17 +13,15 @@ let
     , # Generic Program Modules to import
       programs ? [ ../programs/default.nix ]
     , # Configuration.nix specific to the Host (eg: State version)
-      configuration ? (import "/configuration.nix")
+      configuration ? (hostSpecificFile "/configuration.nix")
     , # Desktop Environment
-      desktop ? (import "/desktop-environment.nix")
+      desktop ? (hostSpecificFile "/desktop-environment.nix")
     , # Networking
-      networking ? (import "/networking.nix")
+      networking ? (hostSpecificFile "/networking.nix")
     , # Hardware
-      hardware ? (import "/hardware.nix")
+      hardware ? (hostSpecificFile "/hardware.nix")
     , # Language and Fonts
-      lang_fonts ? (import "/lang-fonts.nix")
-    , # Development
-      development ? (import "/development.nix")
+      lang_fonts ? (hostSpecificFile "/lang-fonts.nix")
     , extra ? [ ]
     }: {
       inherit name base programs configuration desktop networking hardware lang_fonts extra;
@@ -32,18 +30,15 @@ let
   hosts = {
     asox = makeHost {
       name = "asox";
-      programs = [
-        ../programs/zsh.nix
-        ../programs/vim.nix
+      extra = [
+        ../programs/mayadata.nix
       ];
     };
     lobox = makeHost {
       name = "lobox";
-      programs = [
-        ../programs/zsh.nix
-        ../programs/vim.nix
+      extra = [
+        ../programs/mayadata-full.nix
       ];
-      extra = [ (import "/services.nix") ];
     };
   };
   host = hosts.${name};
