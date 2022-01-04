@@ -31,13 +31,13 @@ let
     asox = makeHost {
       name = "asox";
       extra = [
-        ../programs/mayadata.nix
+        ../features/mayadata.nix
       ];
     };
     lobox = makeHost {
       name = "lobox";
       extra = [
-        ../programs/mayadata-full.nix
+        ../features/mayadata-full.nix
       ];
     };
   };

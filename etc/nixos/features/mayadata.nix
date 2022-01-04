@@ -3,7 +3,7 @@ let
   unstable = import <nixos-unstable> { config = config.nixpkgs.config; };
 in
 {
-  imports = [ ./rust.nix ./smartgit.nix ];
+  imports = [ ../programs/rust.nix ../programs/smartgit.nix ];
 
   environment.systemPackages = with pkgs; [
     git
