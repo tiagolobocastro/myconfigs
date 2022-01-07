@@ -1,11 +1,12 @@
 { config, lib, pkgs, ... }:
 let
   unstable = import <nixos-unstable> { config = config.nixpkgs.config; };
-in
-{
   # The Base
-  imports = [ ./mayadata.nix ];
-
+  base_imports = [ ./mayadata.nix ];
+  # iSCSI
+  iscsi_imports = [ ../modules/iscsid.nix ];
+in
+rec {
   environment.systemPackages = with pkgs; [
     # Kubernetes
     unstable.terraform-full # deploy local cluster via terraform
@@ -44,6 +45,7 @@ in
   ];
 
   # iSCSI
-  imports = [ ../../modules/iscsid.nix ];
   services.iscsid.enable = true;
+
+  imports = base_imports ++ iscsi_imports;
 }

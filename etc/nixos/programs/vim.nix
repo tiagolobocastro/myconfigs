@@ -1,6 +1,5 @@
 { config, pkgs, lib, ... }:
 let
-  unstable = import <nixos-unstable> { config = config.nixpkgs.config; };
   myplugins = with pkgs.vimPlugins; {
     start = [ vim-lastplace vim-plug ];
     # manually loadable by calling `:packadd $plugin-name`
@@ -21,6 +20,8 @@ let
     let g:vimplugged = '/home/tiago/.vim/plugged'
     if filereadable($pkgsVimPlug."/plug.vim")
       source $pkgsVimPlug/plug.vim
+    elseif filereadable($pkgsVimPlug."/share/vim-plugins/vim-plug/plug.vim")
+      source $pkgsVimPlug/share/vim-plugins/vim-plug/plug.vim
     endif
     if filereadable($myvim."/vim/vim.vim")
       source $myvim/vim/vim.vim
