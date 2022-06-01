@@ -11,7 +11,7 @@
   time.timeZone = "Europe/London";
 
   fonts = {
-    enableFontDir = true;
+    fontDir.enable = true;
     fonts = with pkgs;
       [ (nerdfonts.override { fonts = [ "Hasklig" "FiraCode" ]; }) ];
   };

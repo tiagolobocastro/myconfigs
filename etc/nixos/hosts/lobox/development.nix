@@ -20,8 +20,10 @@ in
     tcpdump
     wireshark
 
-    zerotierone
+    # zerotierone
     cntr
+
+    unstable.zoom
   ];
 
   services.zerotierone = { enable = false; };

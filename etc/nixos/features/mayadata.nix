@@ -41,9 +41,9 @@ in
   virtualisation = {
     docker = {
       enable = true;
-      extraOptions = ''
-        --insecure-registry 192.168.1.137:5000
-      '';
+      # extraOptions = ''
+      #   --insecure-registry 192.168.1.65:5000
+      # '';
     };
   };
   # Local registry to test local images

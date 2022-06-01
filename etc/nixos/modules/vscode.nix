@@ -1,4 +1,8 @@
-{ config, pkgs, lib, ... }: {
+{ config, pkgs, lib, ... }:
+let
+  unstable = import <nixos-unstable> { config = config.nixpkgs.config; };
+in
+{
   options = {
     vscode.extensions = lib.mkOption { default = [ ]; };
     vscode.user = lib.mkOption { }; # <- Must be supplied
@@ -11,17 +15,12 @@
     # DIRTY HACK
     # This will fetch latest packages on each rebuild, whatever channel you are at
     nixpkgs.overlays = [
-      (self: super:
-        let
-          unstable =
-            import <nixos-unstable> { config = config.nixpkgs.config; };
-        in
-        lib.genAttrs config.nixpkgs.latestPackages (pkg: unstable."${pkg}"))
+      (self: super: lib.genAttrs config.nixpkgs.latestPackages (pkg: unstable."${pkg}"))
     ];
     # END DIRTY HACK
     ###
 
-    environment.systemPackages = [ pkgs.vscode ];
+    environment.systemPackages = [ unstable.vscode ];
 
     system.activationScripts.fix-vscode-extensions = {
       text = ''

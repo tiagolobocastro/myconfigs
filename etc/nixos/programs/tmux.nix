@@ -12,6 +12,7 @@ in
     extraConfig = ''
       # So we can use transparency (needed by pretty zsh plugins)
       # set -g default-terminal screen-256color 
+      # set-option -g default-shell zsh
 
       # Le Mice
       setw -g mouse on

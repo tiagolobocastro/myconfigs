@@ -1,20 +1,20 @@
 #!/usr/bin/env bash
 set -e
 
-MAYASTOR=~/git/Mayastor
+MAYASTOR=~/git/bolt/mayastor
 DEPLOY_ORG=$MAYASTOR/deploy
 DEPLOY=/tmp/terraform/deploy
 TERRA=/tmp/terraform
 TERRA_ORG=$MAYASTOR/terraform
-MCP=~/git/chief/
+MCP=~/git/bolt/mobs/
 #MCP=
-NODES=2 # includes the master
+NODES=3 # includes the master
 MAX_NBD=4
 POOL_SIZE=16G
 POOL_LOCATION=/data
-NR_HUGEPAGES=512
-MEMORY=4096
-VCPU=2
+NR_HUGEPAGES=1024
+MEMORY=6144
+VCPU=4
 REPO=192.168.1.137:5000/mayadata
 #REPO=ci-registry.mayastor-ci.mayadata.io/mayadata
 TAG="latest"
@@ -151,7 +151,7 @@ function waitForK8s() {
 }
 
 function tuneK8sNode() {
-    mkdir ~/.kube || true
+    mkdir ~/.kube 2>/dev/null || true
 
     if [ $PROVIDER == 'lxd' ]; then
         tuneK8sNodeLxd
@@ -162,19 +162,20 @@ function tuneK8sNode() {
     # This is where mayastor will run
     for i in $(seq 2 $NODES); do
         kubectl label node ksnode-$i openebs.io/engine=mayastor 2>/dev/null || true
+        kubectl label node ksnode-$i datacore.com/engine=io-engine 2>/dev/null || true
     done
 }
 function tuneK8sNodeLibVirt() {
     # Get ansible config
-    ( cd $TERRA && terraform output kluster ) >ansible-hosts
+    ( cd $TERRA && terraform output kluster >ansible-hosts ) 
     # Get config to enable kubectl
-    ansible -i ansible-hosts -a 'cat ~/.kube/config' master | tail -n+2 >~/.kube/config
+    ansible -i $TERRA/ansible-hosts -a 'cat ~/.kube/config' master | tail -n+2 >~/.kube/config
     
     # Create Pool for each node and mount it using virsh
     sudo mkdir $POOL_LOCATION 2>/dev/null || true
     sudo chown $USER $POOL_LOCATION
     for i in $(seq 2 $NODES); do
-        virsh detach-disk ksnode-$i vdb 2>/dev/null || true
+        virsh detach-disk ksnode-$i vdb --live --config 2>/dev/null || true
         rm -f $POOL_LOCATION/data$i.img 2>/dev/null || true
         qemu-img create -f raw $POOL_LOCATION/data$i.img $POOL_SIZE
         virsh attach-disk ksnode-$i $POOL_LOCATION/data$i.img vdb --cache none --persistent
@@ -190,7 +191,7 @@ function unTuneK8sNode() {
 }
 function unTuneK8sNodeLibVirt() {
     for i in $(seq 2 $NODES); do
-        virsh detach-disk ksnode-$i vda || true
+        virsh detach-disk ksnode-$i vdb --live --config || true
         rm -f $POOL_LOCATION/data$i.img 2>/dev/null || true
     done
 }
@@ -352,6 +353,7 @@ function removeMayastorYaml() {
 
 function remove_storage() {
     kubectl -n mayastor delete msp --all 2>/dev/null || true
+    kubectl -n bolt delete dsp --all 2>/dev/null || true
 }
 
 function add_storage() {
@@ -360,16 +362,20 @@ function add_storage() {
 # Now the pools!
 cat << 'EOF' > /tmp/storage_pool.yaml
 apiVersion: "openebs.io/v1alpha1"
-kind: MayastorPool
+#apiVersion: "datacore.com/v1alpha1"
+#kind: MayastorPool
+kind: DiskPool
 metadata:
   name: pool-on-node-$NODE
-  namespace: mayastor
+  namespace: bolt
+  # namespace: mayastor
 spec:
   node: ksnode-$NODE
   disks: ["$POOL"]
 EOF
     # delete old ones
     kubectl -n mayastor delete msp --all 2>/dev/null || true
+    kubectl -n bolt delete dsp --all 2>/dev/null || true
 
     if [ $PROVIDER == 'lxd' ]; then
         for i in $(seq 2 $NODES); do
@@ -391,10 +397,10 @@ EOF
 function remove_storage() {
 cat << 'EOF' > /tmp/storage_pool.yaml
 apiVersion: "openebs.io/v1alpha1"
-kind: MayastorPool
+kind: DiskPool
 metadata:
   name: pool-on-node-$NODE
-  namespace: mayastor
+  namespace: bolt
 spec:
   node: ksnode-$NODE
   disks: ["$POOL"]
@@ -446,7 +452,7 @@ function terraform_setup_force() {
     mkdir -p $DEPLOY
     cp -r $TERRA_ORG/* $TERRA
     cp -rp $DEPLOY_ORG/* $DEPLOY
-    rm $DEPLOY/mayastorpool.yaml || true
+    rm $DEPLOY/mayastorpool.yaml 2>/dev/null || true
 }
 function terraform_setup() {
     if [ ! -d $DEPLOY ]; then
@@ -462,8 +468,9 @@ function terraform_prepare() {
     sed -i "s/#default     = \"ssh-rsa/default     = \"ssh-rsa/g" "$TERRA/variables.tf"
     sed -i "/description = \"The size of the root disk in bytes\"$/{N;s/description = \"The size of the root disk in bytes\"\n  default     = 6442450944/description = \"The size of the root disk in bytes\"\n  default     = $OS_DISK_SIZE/}" "$TERRA/variables.tf"
 
-    sed -i "s/dmacvicar/nixpkgs/" "$TERRA/mod/libvirt/main.tf"
-    sed -i "s/version = \"0\.6\.2\"/version = \"0\.6\.3\"/" "$TERRA/mod/libvirt/main.tf"
+    #sed -i "s/dmacvicar/nixpkgs/" "$TERRA/mod/libvirt/main.tf"
+    sed -i "s/cpu = {/cpu {/" "$TERRA/mod/libvirt/main.tf"
+    sed -i "s/version = \"0\.6\.2\"/#version = \"0\.6\.3\"/" "$TERRA/mod/libvirt/main.tf"
 
     sed -i "s/gilanetes/castrol/" "$TERRA/mod/k8s/kubeadm_config.yaml"
 
@@ -477,7 +484,7 @@ function terraform_prepare() {
     elif  [ $PROVIDER == 'libvirt' ]; then
         sed -i 's/  source = \"\.\/mod\/lxd\"/  #source = \"\.\/mod\/lxd\"/g' $TERRA/main.tf
         sed -i 's/  #source = \"\.\/mod\/libvirt\"/  source = \"\.\/mod\/libvirt\"/g' $TERRA/main.tf
-        sed -i "s/storageClassName: mayastor.*$/storageClassName: mayastor-$PROTOCOL/g" "$DEPLOY/pvc.yaml"
+        sed -i "s/storageClassName: mayastor.*$/storageClassName: mayastor-$PROTOCOL-2/g" "$DEPLOY/pvc.yaml"
         sudo mkdir -p $LIBVIRT_IMAGE_DIR
         sudo chown $USER $LIBVIRT_IMAGE_DIR
         if [ ! -f $LIBVIRT_IMAGE_PATH ]; then

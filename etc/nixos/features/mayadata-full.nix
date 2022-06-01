@@ -1,16 +1,16 @@
 { config, lib, pkgs, ... }:
 let
-  unstable = import <nixos-unstable> { config = config.nixpkgs.config; };
   # The Base
   base_imports = [ ./mayadata.nix ];
   # iSCSI
   iscsi_imports = [ ../modules/iscsid.nix ];
+  unstable = import <nixpkgs-master> { config = config.nixpkgs.config; };
 in
 rec {
   environment.systemPackages = with pkgs; [
     # Kubernetes
-    unstable.terraform-full # deploy local cluster via terraform
-    ansible
+    (terraform.withPlugins (p: [ p.libvirt p.null p.template p.lxd p.kubernetes p.helm ])) # deploy local cluster via terraform
+    ansible_2_10 # Otherwise we hit some python issues...
     virt-manager
 
     # DBG
@@ -24,17 +24,21 @@ rec {
   virtualisation = {
     libvirtd = {
       enable = true;
-      qemuOvmf = true;
-      qemuRunAsRoot = true;
+      qemu = {
+        ovmf = {
+          enable = true;
+        };
+        runAsRoot = true;
+      };
       onBoot = "ignore";
       onShutdown = "shutdown";
     };
     lxd = { enable = true; };
     docker = {
       enable = true;
-      extraOptions = ''
-        --insecure-registry 192.168.1.137:5000
-      '';
+      # extraOptions = ''
+      #   --insecure-registry 192.168.1.65:5000
+      # '';
     };
   };
   # terraform can also be setup with LXD
@@ -44,8 +48,10 @@ rec {
     e2fsprogs
   ];
 
+  # system.nssDatabases.hosts = [ "libvirt libvirt_guest" ];
+
   # iSCSI
   services.iscsid.enable = true;
 
-  imports = base_imports ++ iscsi_imports;
+  imports = base_imports ++ iscsi_imports ++ [ ../modules/reading-vpn.nix ];
 }

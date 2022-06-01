@@ -17,6 +17,8 @@ in
     shell = pkgs.zsh;
   };
 
+  nix.trustedUsers = [ "root" "tiago" ];
+
   services.fstrim.enable = true;
 
   imports = host.imports;

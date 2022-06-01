@@ -9,9 +9,16 @@ in
     ./vscode.nix
     ./zsh.nix
     ./tmux.nix
+    #./plugin-autenticacao-gov-pt.nix
   ];
 
   environment.systemPackages = with pkgs; [
-    unstable.bitwarden
+    unstable.zoom-us
+
+    killall
+
+    obs-studio
+
+    vlc
   ];
 }

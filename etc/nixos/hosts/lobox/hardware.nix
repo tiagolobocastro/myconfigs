@@ -32,9 +32,11 @@ in
       "dm-mirror"
       "dm_thin_pool"
     ];
+    # blacklistedKernelModules = [ "l2tp_ppp" "l2tp_netlink" "l2tp_core" ];
     extraModprobeConfig = ''
       options kvm_amd nested=1
       options nf_conntrack hashsize=393216
+      options iwlwifi 11n_disable=1 swcrypto=1
     '';
     kernel.sysctl = { "vm.nr_hugepages" = 4096; };
   };
