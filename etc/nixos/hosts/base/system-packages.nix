@@ -5,7 +5,7 @@
     wget
     git
     nixpkgs-fmt
-    manpages
+    man-pages
     unzip
     tree
     exa

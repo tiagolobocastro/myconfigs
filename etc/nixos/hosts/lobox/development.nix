@@ -26,5 +26,5 @@ in
     unstable.zoom
   ];
 
-  services.zerotierone = { enable = false; };
+  services.zerotierone = { enable = true; };
 }

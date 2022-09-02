@@ -89,23 +89,7 @@ km exec $1 -c mayastor --stdin --tty -- /sbin/sh
 unset -f f;
 }; f'
 
-alias nix-cargo='f(){
-bin=$(/usr/bin/which cargo)
-if [ $bin = "/home/tiago/.cargo/bin/cargo" ]; then
-  ( cd ~/git/Mayastor && nix-shell --run "cargo $*" )
-else
-  $bin $* 
-fi
-unset -f f;
-}; f'
-
-export PATH=$PATH:~/git/myconfigs/maya:~/git/bolt/controller/target/debug
-
-if rustup default | cut -d' ' -f1 >/dev/null; then
-  if [ -z $RUST_SRC_PATH ]; then
-      export RUST_SRC_PATH=~/.rustup/toolchains/$(rustup default | cut -d' ' -f1)/lib/rustlib/src
-  fi
-fi
+export PATH=$PATH:~/git/myconfigs/maya
 
 alias ls='exa '
 

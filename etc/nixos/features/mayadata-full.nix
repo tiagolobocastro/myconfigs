@@ -9,8 +9,9 @@ in
 rec {
   environment.systemPackages = with pkgs; [
     # Kubernetes
-    (terraform.withPlugins (p: [ p.libvirt p.null p.template p.lxd p.kubernetes p.helm ])) # deploy local cluster via terraform
-    ansible_2_10 # Otherwise we hit some python issues...
+    (terraform.withPlugins (p: [ p.libvirt p.null p.template p.lxd p.kubernetes p.helm p.local ])) # deploy local cluster via terraform
+    # ansible_2_10 # Otherwise we hit some python issues...
+    ansible
     virt-manager
 
     # DBG
@@ -48,7 +49,9 @@ rec {
     e2fsprogs
   ];
 
-  # system.nssDatabases.hosts = [ "libvirt libvirt_guest" ];
+  system.nssDatabases.hosts = [ "libvirt libvirt_guest" ];
+  #services.resolved.enable = true;
+  services.nscd.enable = true;
 
   # iSCSI
   services.iscsid.enable = true;

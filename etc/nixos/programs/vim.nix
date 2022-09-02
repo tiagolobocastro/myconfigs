@@ -30,7 +30,7 @@ let
 in
 {
   environment.systemPackages = with pkgs; [
-    ((vim_configurable.override { python = python3; }).customize {
+    (vim_configurable.customize {
       name = "vim";
       vimrcConfig.packages.myplugins = myplugins;
       vimrcConfig.customRC = customRC;

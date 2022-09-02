@@ -35,4 +35,10 @@ in
   # networking.firewall.allowedUDPPorts = [ ... ];
   # Or disable the firewall altogether.
   networking.firewall.enable = false;
+
+  networking.extraHosts =
+  ''
+    10.0.0.6 api-rest.mayastor.openebs.io
+  '';
+
 }

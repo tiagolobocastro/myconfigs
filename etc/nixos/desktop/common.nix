@@ -12,7 +12,7 @@ in
   # Desktop Apps
   environment.systemPackages = with pkgs; [
     # Browsers
-    unstable.firefox-bin
+    firefox-bin
     chromium
     brave
 

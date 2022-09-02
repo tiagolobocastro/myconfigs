@@ -12,10 +12,10 @@ in
   boot.loader.grub.efiInstallAsRemovable = true;
   boot.loader.grub.device = "nodev";
   # Add systemd to enable kexec
-  boot.loader.systemd-boot.enable = true;
+  boot.loader.systemd-boot.enable = false;
 
   boot = {
-    kernelPackages = unstable.linuxPackages_latest;
+    #kernelPackages = pkgs.linuxPackages_latest;
     kernelParams = [ "mitigations=off" "coretemp" ];
     kernelModules = [
       "nbd"
@@ -36,7 +36,7 @@ in
     extraModprobeConfig = ''
       options kvm_amd nested=1
       options nf_conntrack hashsize=393216
-      options iwlwifi 11n_disable=1 swcrypto=1
+      # options iwlwifi 11n_disable=1 swcrypto=1
     '';
     kernel.sysctl = { "vm.nr_hugepages" = 4096; };
   };

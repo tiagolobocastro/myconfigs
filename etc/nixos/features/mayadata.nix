@@ -3,7 +3,7 @@ let
   unstable = import <nixos-unstable> { config = config.nixpkgs.config; };
 in
 {
-  imports = [ ../programs/rust.nix ../programs/smartgit.nix ];
+  imports = [ ../programs/rust.nix ../programs/smartgit.nix  ../programs/gpg.nix ];
 
   environment.systemPackages = with pkgs; [
     git
@@ -22,6 +22,8 @@ in
     kubernetes-helm
     kubectl
     k9s
+
+    nvme-cli
 
     # Social Networking
     unstable.slack
