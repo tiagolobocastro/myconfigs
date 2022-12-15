@@ -17,7 +17,7 @@ in
     # vscode - see import above
 
     # Manage rust outside of nix
-    unstable.rustup
+    rustup
 
     # Debugger
     gdb

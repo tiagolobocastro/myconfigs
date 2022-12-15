@@ -8,10 +8,10 @@ let
       '';
     }
   );
-  vpn_ip = "";
-  psk = "";
-  user = "";
-  pass = "";
+  # vpn_ip = "";
+  # psk = "";
+  # user = "";
+  # pass = "";
 in
 {
 
@@ -136,4 +136,6 @@ in
   #systemd.services.xl2tpd.serviceConfig.ExecStart = lib.mkForce "${pkgs.xl2tpd}/bin/xl2tpd -D -c /tmp/nm/xl2tpd.conf -s /etc/xl2tpd/l2tp-secrets -p /run/xl2tpd/pid -C /run/xl2tpd/control";
   systemd.services.xl2tpd.serviceConfig.ExecStart = lib.mkForce "${pkgs.xl2tpd}/bin/xl2tpd -D -c /home/tiago/xl2tpd.conf -s /etc/xl2tpd/l2tp-secrets -p /run/xl2tpd/pid -C /run/xl2tpd/control";
   systemd.services.strongswan.environment.STRONGSWAN_CONF = lib.mkForce "/home/tiago/.config/strongswan/ipsec.conf";
+
+  services.zerotierone = { enable = true; };
 }

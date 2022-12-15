@@ -89,7 +89,7 @@ km exec $1 -c mayastor --stdin --tty -- /sbin/sh
 unset -f f;
 }; f'
 
-export PATH=$PATH:~/git/myconfigs/maya
+export PATH=$PATH:~/git/myconfigs/maya:/home/tiago/git/mayastor/controller/target/debug:/home/tiago/git/mayastor/extensions/target/debug:/home/tiago/git/mayastor/io-engine/target/debug
 
 alias ls='exa '
 

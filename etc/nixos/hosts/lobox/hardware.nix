@@ -15,12 +15,12 @@ in
   boot.loader.systemd-boot.enable = false;
 
   boot = {
-    #kernelPackages = pkgs.linuxPackages_latest;
+    #kernelPackages = pkgs.linuxPackages_6_0;
     kernelParams = [ "mitigations=off" "coretemp" ];
     kernelModules = [
-      "nbd"
-      "nvmet"
-      "nvmet-tcp"
+      #"nbd"
+      #"nvmet"
+      #"nvmet-tcp"
       "nvme-tcp"
       "nf_conntrack"
       "ip_tables"
@@ -43,7 +43,7 @@ in
 
   # Enable sound.
   sound.enable = true;
-  hardware.pulseaudio.enable = true;
+  hardware.pulseaudio.enable = false;
 
   # Do we need this?
   hardware.enableAllFirmware = true;

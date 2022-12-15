@@ -7,7 +7,10 @@ in
 
   programs.ssh.extraConfig = ''
     ServerAliveInterval 15
-    ServerAliveCountMax 3'';
+    ServerAliveCountMax 3
+    # ClientAliveInterval 15
+    # ClientAliveCountMax 3
+  '';
 
   users.users.tiago = {
     description = "Tiago Castro";
@@ -22,4 +25,6 @@ in
   services.fstrim.enable = true;
 
   imports = host.imports;
+
+  boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
 }
