@@ -17,13 +17,23 @@ plugins=(
 	zsh-autosuggestions
 	zsh-syntax-highlighting
 	git
+    sudo
+    docker
+    vi-mode
+    systemd
+    command-not-found
+    kubectl
+    extract
+    man
 )
+
+export ZSH_CUSTOM=${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}
 
 bindkey "^[[1;5D" backward-word
 bindkey "^[[1;5C" forward-word
 
 if [[ -z $ZSH ]]; then
-    export ZSH="/home/tiago/.oh-my-zsh"
+    export ZSH="$HOME/.oh-my-zsh"
     source $ZSH/oh-my-zsh.sh
 fi
 
@@ -95,3 +105,5 @@ alias ls='exa '
 
 eval "$(direnv hook zsh)"
 
+#export NIXPKGS_ALLOW_BROKEN=1
+#export NIXPKGS_ALLOW_UNSUPPORTED_SYSTEM=1
