@@ -29,6 +29,7 @@ plugins=(
 
 export ZSH_CUSTOM=${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}
 
+bindkey -e
 bindkey "^[[1;5D" backward-word
 bindkey "^[[1;5C" forward-word
 
@@ -104,6 +105,3 @@ export PATH=$PATH:~/git/myconfigs/maya:/home/tiago/git/mayastor/controller/targe
 alias ls='exa '
 
 eval "$(direnv hook zsh)"
-
-#export NIXPKGS_ALLOW_BROKEN=1
-#export NIXPKGS_ALLOW_UNSUPPORTED_SYSTEM=1

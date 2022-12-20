@@ -1,7 +1,4 @@
 { config, pkgs, lib, ... }: 
-# let
-#   unstable = import <nixgit> { config = config.nixpkgs.config; };
-# in
 {
   # Why?
   nixpkgs.config.allowUnfree = true;
@@ -25,6 +22,6 @@
     partition-manager
 
     # Office
-    # unstable.p3x-onenote
+    # p3x-onenote
   ];
 }

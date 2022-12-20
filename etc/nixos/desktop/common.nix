@@ -1,7 +1,4 @@
 { config, pkgs, lib, ... }:
-let
-  unstable = import <nixos-unstable> { config = config.nixpkgs.config; };
-in
 {
   # Why?
   nixpkgs.config.allowUnfree = true;

@@ -40,6 +40,12 @@ let
         ../features/mayadata-full.nix
       ];
     };
+    cncf-dev = makeHost {
+      name = "cncf-dev";
+      extra = [
+        ../features/mayadata.nix
+      ];
+    };
   };
   host = hosts.${name};
 in

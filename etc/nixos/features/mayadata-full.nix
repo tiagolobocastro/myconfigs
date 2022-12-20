@@ -1,23 +1,22 @@
 { config, lib, pkgs, ... }:
 let
   # The Base
-  base_imports = [ ./mayadata.nix ];
+  base_imports = [ ./mayadata.nix ./mayadata-ui.nix ];
   # iSCSI
   iscsi_imports = [ ../modules/iscsid.nix ];
-  unstable = import <nixpkgs-master> { config = config.nixpkgs.config; };
+  with-desktop = config.services.xserver.enable;
 in
 rec {
-  environment.systemPackages = with pkgs; [
+  environment.systemPackages = with pkgs; if with-desktop then [ virt-manager ] else [
     # Kubernetes
     (terraform.withPlugins (p: [ p.libvirt p.null p.template p.lxd p.kubernetes p.helm p.local ])) # deploy local cluster via terraform
     # ansible_2_10 # Otherwise we hit some python issues...
     ansible
-    virt-manager
 
     # DBG
     linuxPackages.bpftrace
 
-    # VPN into the Hetzner "Lab" (service is disable by default)
+    # VPN into the Hetzner "Lab" (service is disabled by default)
     zerotierone
   ];
 
@@ -54,7 +53,8 @@ rec {
   services.nscd.enable = true;
 
   # iSCSI
-  services.iscsid.enable = true;
+  # services.iscsid.enable = true;
 
-  imports = base_imports ++ iscsi_imports ++ [ ../modules/reading-vpn.nix ];
+  imports = base_imports;
+  # ++ iscsi_imports ++ [ ../modules/reading-vpn.nix ];
 }

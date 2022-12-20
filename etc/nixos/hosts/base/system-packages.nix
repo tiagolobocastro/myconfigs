@@ -9,11 +9,7 @@
     unzip
     tree
     exa
-
-    # Sync Data 
-    #onedrive
-
-    #ntfs3g
+    direnv
 
     # Monitoring
     htop
@@ -21,5 +17,4 @@
     lm_sensors
     pciutils
   ];
-  #services.onedrive.enable = false;
 }

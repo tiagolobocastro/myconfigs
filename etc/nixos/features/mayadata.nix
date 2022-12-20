@@ -1,15 +1,12 @@
-{ config, lib, pkgs, ... }:
-let
-  unstable = import <nixos-unstable> { config = config.nixpkgs.config; };
-in
-{
-  imports = [ ../programs/rust.nix ../programs/smartgit.nix  ../programs/gpg.nix ];
+{ config, lib, pkgs, ... }: {
+  imports = [ ../programs/rust.nix ../programs/gpg.nix ];
 
   environment.systemPackages = with pkgs; [
-    git
     # Visual Diff
     meld
 
+    git
+    
     # Container development
     lxd
     thin-provisioning-tools
@@ -25,10 +22,6 @@ in
 
     nvme-cli
 
-    # Social Networking
-    unstable.slack
-    unstable.teams
-
     # Update sources.nix
     niv
 
@@ -36,7 +29,7 @@ in
     jq
 
     # OpenApi devel
-    unstable.curl
+    curl
   ];
 
   # Mayastor and ctrlp are tested using containers

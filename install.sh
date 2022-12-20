@@ -40,7 +40,7 @@ link() {
   done
 }
 
-fileList=$(echo "~/.config/onedrive/config" "~/.vimrc" "~/.config/nvim" "~/.zshrc" "~/.p10k.zsh" "~/.p10k-nix-shell.zsh" "~/.oh-my-zsh/oh-my-zsh.sh")
+fileList=$(echo "~/.vimrc" "~/.config/nvim" "~/.zshrc" "~/.p10k.zsh" "~/.p10k-nix-shell.zsh" "~/.oh-my-zsh/oh-my-zsh.sh")
 
 backup $fileList
 link $fileList

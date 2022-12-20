@@ -3,9 +3,10 @@ let
   version = "21.2.2";
   version_ = builtins.replaceStrings [ "." ] [ "_" ] version;
   pkgs_21_11 = import <nixos-21.11> { config = config.nixpkgs.config; };
+  with-desktop = config.services.xserver.enable;
 in
 {
-  environment.systemPackages = with pkgs; [
+  environment.systemPackages = with pkgs; if with-desktop then [ ] else [
     (pkgs_21_11.smartgithg.overrideAttrs (oldAttrs: rec {
       inherit version;
       src = fetchurl {
