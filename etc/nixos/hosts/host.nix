@@ -37,13 +37,13 @@ let
     lobox = makeHost {
       name = "lobox";
       extra = [
-        ../features/mayadata-full.nix
+        ../features/mayadata-full-ui.nix
       ];
     };
     cncf-dev = makeHost {
       name = "cncf-dev";
       extra = [
-        ../features/mayadata.nix
+        ../features/mayadata-full.nix
       ];
     };
   };
