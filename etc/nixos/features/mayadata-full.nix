@@ -4,10 +4,9 @@ let
   base_imports = [ ./mayadata.nix ];
   # iSCSI
   iscsi_imports = [ ../modules/iscsid.nix ];
-  with-desktop = config.services.xserver.enable;
 in
 rec {
-  environment.systemPackages = with pkgs; if with-desktop then [ virt-manager ] else [
+  environment.systemPackages = with pkgs; [
     # Kubernetes
     (terraform.withPlugins (p: [ p.libvirt p.null p.template p.lxd p.kubernetes p.helm p.local ])) # deploy local cluster via terraform
     # ansible_2_10 # Otherwise we hit some python issues...
