@@ -1,7 +1,7 @@
 { config, lib, pkgs, ... }:
 let
   # The Base
-  base_imports = [ ./mayadata.nix ./mayadata-ui.nix ];
+  base_imports = [ ./mayadata.nix ];
   # iSCSI
   iscsi_imports = [ ../modules/iscsid.nix ];
   with-desktop = config.services.xserver.enable;
