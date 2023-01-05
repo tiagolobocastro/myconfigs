@@ -1,0 +1,8 @@
+apiVersion: "openebs.io/v1alpha1"
+kind: DiskPool
+metadata:
+  name: pool-$NODE
+  namespace: $NAMESPACE
+spec:
+  node: $NODE
+  disks: [$DISK]

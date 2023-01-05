@@ -1,0 +1,40 @@
+---
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: mayastor-nvmf
+parameters:
+  repl: '1'
+  protocol: 'nvmf'
+  ioTimeout: '30'
+  #nvmeCtrlLossTmo: '120'
+  # nvmeKeepAliveTmo: '11'
+  # It is recommended to use xfs for Mayastor
+  # fsType: 'xfs'
+provisioner: io.openebs.csi-mayastor
+---
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: mayastor-nvmf-2
+parameters:
+  repl: '2'
+  protocol: 'nvmf'
+  ioTimeout: '30'
+  ctrlLossTmo: '120'
+  # It is recommended to use xfs for Mayastor
+  # fsType: 'xfs'
+provisioner: io.openebs.csi-mayastor
+---
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: mayastor-nvmf-3
+parameters:
+  repl: '3'
+  protocol: 'nvmf'
+  ioTimeout: '30'
+  ctrlLossTmo: '120'
+  # It is recommended to use xfs for Mayastor
+  # fsType: 'xfs'
+provisioner: io.openebs.csi-mayastor

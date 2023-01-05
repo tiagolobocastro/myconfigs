@@ -1,0 +1,36 @@
+kind: Pod
+apiVersion: v1
+metadata:
+  name: fio-$N
+  labels:
+    app: fio
+spec:
+  #nodeSelector:
+  #  kubernetes.io/hostname: ksnode-2
+  # Run on a storage node so that the nexus is local to the app
+  volumes:
+    - name: ms-volume
+      persistentVolumeClaim:
+       claimName: pvc-$N
+  containers:
+    - name: fio
+      image: mayadata/fio
+      args:
+        - fio
+        - --name=benchtest
+        - --size=40m
+        - --filename=/volume/test
+        - --direct=1
+        - --rw=randrw
+        - --ioengine=libaio
+        - --bs=4k
+        - --iodepth=32
+        - --numjobs=1
+        - --time_based
+        - --runtime=1000
+      volumeMounts:
+        - mountPath: "/volume"
+          name: ms-volume
+      #volumeDevices:
+      #  - devicePath: /dev/xvda
+      #    name: ms-volume
