@@ -2,7 +2,6 @@
 {
   imports = [ ../modules/vscode.nix ];
 
-  environment.systemPackages = [ pkgs.vscode ];
   # vscode configuration
   vscode.user = "tiago";
   vscode.homeDir = "/home/tiago";

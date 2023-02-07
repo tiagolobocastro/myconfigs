@@ -47,4 +47,5 @@
     listenAddress = "0.0.0.0";
     enableDelete = true;
   };
+  networking.firewall.interfaces."mayabridge0".allowedTCPPorts = [ 8082 ];
 }

@@ -62,8 +62,14 @@ in
   # networking.firewall.allowedTCPPorts = [ ... ];
   # networking.firewall.allowedUDPPorts = [ ... ];
   # Or disable the firewall altogether.
-  networking.firewall.enable = true;
-  networking.firewall.checkReversePath = false;
+  networking.firewall = {
+    enable = true;
+    checkReversePath = false;
+    # interfaces."mayabridge0".allowedTCPPorts = [ 8082 ];
+    #extraCommands = ''
+    #  #iptables -A INPUT -i mayabridge0 -j ACCEPT
+    #'';
+  };
 
   # networking.extraHosts =
   # ''

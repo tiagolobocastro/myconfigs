@@ -20,6 +20,8 @@ call plug#begin(g:vimplugged)
   " Vim-Nix
   Plug 'LnL7/vim-nix'
 
+  Plug 'powerman/vim-plugin-AnsiEsc'
+
 call plug#end()
 
 " Ack
