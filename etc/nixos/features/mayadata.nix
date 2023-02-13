@@ -47,5 +47,10 @@
     listenAddress = "0.0.0.0";
     enableDelete = true;
   };
-  networking.firewall.interfaces."mayabridge0".allowedTCPPorts = [ 8082 ];
+  networking.firewall = {
+    # Allow docker compose tests to reach the host
+    interfaces."mayabridge0".allowedTCPPorts = [ 8082 ];
+    # Allow k8s containers to pull from the host's registry
+    interfaces."virbr1".allowedTCPPorts = [ 5000 ];
+  };
 }
