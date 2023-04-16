@@ -6,7 +6,7 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 SIGNAL=${1:-KILL}
-QUERY=${2:-mayastor\/target}
+QUERY=${2:-io-engine\/target}
 
 # grep -v grep ignores the grep itself though there must be a 
 # nicer way of doing this...

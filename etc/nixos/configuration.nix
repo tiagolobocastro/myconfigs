@@ -20,7 +20,7 @@ in
     shell = pkgs.zsh;
   };
 
-  nix.trustedUsers = [ "root" "tiago" ];
+  nix.settings.trusted-users = [ "root" "tiago" ];
 
   services.fstrim.enable = true;
 

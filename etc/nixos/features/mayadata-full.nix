@@ -8,7 +8,7 @@ in
 rec {
   environment.systemPackages = with pkgs; [
     # Kubernetes
-    (terraform.withPlugins (p: [ p.libvirt p.null p.template p.lxd p.kubernetes p.helm p.local ])) # deploy local cluster via terraform
+    (terraform.withPlugins (p: [ p.libvirt p.null p.lxd p.kubernetes p.helm p.local ])) # deploy local cluster via terraform
     # ansible_2_10 # Otherwise we hit some python issues...
     ansible
 
