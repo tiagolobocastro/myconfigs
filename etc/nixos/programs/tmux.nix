@@ -1,8 +1,4 @@
-{ config, lib, pkgs, ... }:
-let
-  unstable = import <nixos-unstable> { config = config.nixpkgs.config; };
-in
-{
+{ config, lib, pkgs, ... }: {
   programs.tmux = {
     enable = true;
     clock24 = true;
@@ -32,6 +28,9 @@ in
       # For vi copy mode bindings
       bind-key -T copy-mode-vi MouseDragEnd1Pane send-keys -X copy-pipe-and-cancel "xclip -selection clipboard -i"
     '';
+    plugins = with pkgs; [
+      tmuxPlugins.resurrect
+    ];
   };
   # Requirements
   environment.systemPackages = with pkgs; [
