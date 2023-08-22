@@ -46,7 +46,7 @@ let
         ../features/mayadata-full.nix
       ];
     };
-    cncf-dev = makeHost {
+    cncf-nvme = makeHost {
       name = "cncf-nvme";
       extra = [
         ../features/mayadata-full.nix
