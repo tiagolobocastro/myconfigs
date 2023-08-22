@@ -1,0 +1,16 @@
+kind: Pod
+apiVersion: v1
+metadata:
+  name: fio-$N
+  labels:
+    app: fio
+spec:
+  nodeSelector:
+    kubernetes.io/hostname: ksnode-$N
+  # Run on a storage node so that the nexus is local to the app
+  containers:
+    - name: fio
+      image: busybox:latest
+      args:
+        - sleep
+        - "1000000"

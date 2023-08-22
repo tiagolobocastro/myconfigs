@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: fio-1
+  labels:
+    app: fio
+spec:
+  nodeName: node-2-100576
+  volumes:
+    - name: ms-volume
+      persistentVolumeClaim:
+       claimName: mq-3567-1repl
+  containers:
+    - name: fio
+      image: mayadata/fio
+      args:
+        - sleep
+        - "1000000"
+      securityContext:
+        allowPrivilegeEscalation: true
+        privileged: true
+        runAsUser: 0
+      volumeDevices:
+        - devicePath: /dev/sdm
+          name: ms-volume
