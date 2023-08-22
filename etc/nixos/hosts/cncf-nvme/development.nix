@@ -8,12 +8,12 @@
     # Networking
     tcpdump
 
-    home-manager
+    #home-manager
   ];
 
-  home-manager.users.tiago = { pkgs, ... }: {
-    home.packages = [ pkgs.atool pkgs.httpie ];
-    programs.bash.enable = true;
-  };
-  home-manager.useGlobalPkgs = true;
+  # home-manager.users.tiago = { pkgs, ... }: {
+  #   home.packages = [ pkgs.atool pkgs.httpie ];
+  #   programs.bash.enable = true;
+  # };
+  # home-manager.useGlobalPkgs = true;
 }
