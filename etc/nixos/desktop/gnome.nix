@@ -7,9 +7,6 @@
   services.xserver.displayManager.gdm.enable = true;
   services.xserver.desktopManager.gnome.enable = true;
 
-  # Browser Plasma Integration
-  nixpkgs.config.firefox.enablePlasmaBrowserIntegration = true;
-
   # Desktop Apps
   environment.systemPackages = with pkgs; [
     # Kde specific

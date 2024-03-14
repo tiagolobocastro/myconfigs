@@ -8,7 +8,7 @@
     man-pages
     unzip
     tree
-    exa
+    eza
     direnv
 
     # Monitoring
@@ -17,4 +17,6 @@
     lm_sensors
     pciutils
   ];
+
+  programs.nix-ld.enable = true;
 }

@@ -1,4 +1,4 @@
-{ config, pkgs, lib, ... }: 
+{ config, pkgs, lib, ... }:
 {
   # Why?
   nixpkgs.config.allowUnfree = true;
@@ -9,7 +9,7 @@
   services.xserver.displayManager.lightdm.enable = true;
 
   # Browser Plasma Integration
-  nixpkgs.config.firefox.enablePlasmaBrowserIntegration = true;
+  programs.firefox.nativeMessagingHosts.packages = [ pkgs.plasma5Packages.plasma-browser-integration ];
 
   # Desktop Apps
   environment.systemPackages = with pkgs; [

@@ -1,14 +1,6 @@
 { config, lib, pkgs, ... }:
 let
   host = import ../host.nix { inherit lib; };
-  # l2tp = (pkgs.networkmanager-l2tp.overrideAttrs (oldAttrs:
-  #   {
-  #     postPatch = ''
-  #       substituteInPlace src/nm-l2tp-service.c --replace "authby=secret" "authby=xauthpsk\n  xauth_identity=tiago.castro\n  dpddelay=30\n  dpdtimeout=120\n  dpdaction=clear"
-  #     '';
-  #   }
-  # )
-  # );
 in
 {
   networking.hostName = host.name;
@@ -76,4 +68,5 @@ in
   #   10.0.0.6 api-rest.mayastor.openebs.io
   # '';
 
+  imports = [ ../../modules/reading-vpn.nix ];
 }

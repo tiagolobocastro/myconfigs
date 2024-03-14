@@ -1,12 +1,10 @@
-{ config, lib, pkgs, ... }:
-let
-  unstable = import <nixos-unstable> { config = config.nixpkgs.config; };
-in {
-  imports = [ ../programs/smartgit.nix ../programs/rust-ui.nix ];
+{ config, lib, pkgs, ... }: {
+  imports = [ ../programs/smartgit.nix ../programs/rust-ui.nix ../programs/teams.nix ];
 
   environment.systemPackages = with pkgs; [
     # Social Networking
-    unstable.slack
-    unstable.teams
+    slack
+    #teams-for-linux
+    #teams
   ];
 }

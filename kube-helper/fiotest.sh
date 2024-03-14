@@ -8,4 +8,4 @@ fi
 
 SZ=${SZ:-50m}
 
-kubectl exec -it $FIO -- fio --name=benchtest --size="$SZ" --filename=/volume/test --direct=1 --rw=randrw --ioengine=libaio --bs=4k --iodepth=16 --numjobs=1 --time_based --runtime=60
+kubectl exec -it $FIO -- fio --name=benchtest --filename=/volume/test --direct=1 --rw=randrw --ioengine=libaio --bs=4k --iodepth=16 --numjobs=1 --time_based --runtime=60

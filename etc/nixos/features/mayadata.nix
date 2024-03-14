@@ -6,7 +6,8 @@
     meld
 
     git
-    
+    protobuf
+
     # Container development
     lxd
     thin-provisioning-tools

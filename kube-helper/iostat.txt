@@ -1,0 +1,1 @@
+( set -eo pipefail; iostat -xd 1 sdb | while read cmd; do echo $cmd | iostat -xd 1 sdb | awk '{ if (/sdb/) { if ($6 >= 100 || $12 > 100) { timestamp = strftime("%F %T"); print timestamp ":\n" prev "\n" $0; fflush(); }}}{ prev=$0 }' | tee -a new.txt; done )

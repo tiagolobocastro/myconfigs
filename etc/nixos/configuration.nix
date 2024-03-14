@@ -27,4 +27,8 @@ in
   imports = host.imports;
 
   boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
+
+  hardware.keyboard.qmk.enable = true;
+
+  services.lvm.boot.thin.enable = true;
 }

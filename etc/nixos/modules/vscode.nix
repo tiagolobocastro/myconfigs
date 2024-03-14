@@ -14,14 +14,14 @@ in
     ###
     # DIRTY HACK
     # This will fetch latest packages on each rebuild, whatever channel you are at
-    nixpkgs.overlays = [
-      (self: super: lib.genAttrs config.nixpkgs.latestPackages (pkg: unstable."${pkg}"))
-    ];
+    #nixpkgs.overlays = [
+    #  (self: super: lib.genAttrs config.nixpkgs.latestPackages (pkg: unstable."${pkg}"))
+    #];
     # END DIRTY HACK
     ###
 
     nixpkgs.config.allowUnfree = true;
-    environment.systemPackages = [ unstable.vscode ];
+    environment.systemPackages = [ pkgs.vscode ];
 
     system.activationScripts.fix-vscode-extensions = {
       text = ''

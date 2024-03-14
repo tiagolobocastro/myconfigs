@@ -1,0 +1,30 @@
+kind: Pod
+apiVersion: v1
+metadata:
+  name: fio-spdk
+  labels:
+    app: fio
+spec:
+  hostNetwork: true
+  nodeSelector:
+    kubernetes.io/hostname: worker-0
+  # Run on a storage node so that the nexus is local to the app
+  volumes:
+    - name: hugepage
+      emptyDir:
+        medium: HugePages
+  containers:
+    - name: fio
+      image: openebs/mayastor-fio-spdk:v2.4.0
+      args:
+        - sleep
+        - "1000000"
+      securityContext:
+        privileged: true
+      resources:
+        limits:
+          hugepages-2Mi: 512Mi
+          memory: 512Mi
+      volumeMounts:
+      - mountPath: /hugepages
+        name: hugepage

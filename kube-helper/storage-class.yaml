@@ -2,11 +2,12 @@
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
 metadata:
-  name: mayastor-nvmf
+  name: mayastor-single-replica
 parameters:
   repl: '1'
   protocol: 'nvmf'
   ioTimeout: '30'
+  thin: "true"
   #nvmeCtrlLossTmo: '120'
   # nvmeKeepAliveTmo: '11'
   # It is recommended to use xfs for Mayastor

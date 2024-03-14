@@ -1,0 +1,18 @@
+kind: Pod
+apiVersion: v1
+metadata:
+  name: fio-1
+  labels:
+    app: fio
+spec:
+  nodeSelector:
+    kubernetes.io/hostname: worker-0
+  # Run on a storage node so that the nexus is local to the app
+  containers:
+    - name: fio
+      image: mayadata/fio
+      args:
+        - sleep
+        - "1000000"
+      securityContext:
+        privileged: true

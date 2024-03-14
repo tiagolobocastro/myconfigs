@@ -4,9 +4,9 @@ with lib;
 
 let
   cfg = config.services.jetbrains-remote-server;
-  
+
   name = "jetbrains-remote-server";
-      
+
   mkStartScript = name: pkgs.writeShellScript "${name}.sh" ''
     set -euo pipefail
     PATH=${makeBinPath (with pkgs; [ coreutils findutils inotify-tools patchelf gnused ])}
@@ -56,7 +56,8 @@ let
       esac
     done < <(inotifywait -r -m -q -e CREATE --include '^.*ideaIU[-[:digit:]\.]+(/plugins)?(/remote-dev-server)?(/bin)?$' --format '%w%f:%e' "$bin_dir")
   '';
-in {
+in
+{
   options = {
     services.jetbrains-remote-server = {
       enable = mkEnableOption "jetbrains-remote-server";
@@ -66,12 +67,12 @@ in {
   config = mkMerge [
     (mkIf cfg.enable {
       home.packages = [ ];
-      
+
       systemd.user.services.${name} = {
         Unit = {
           Description = "Automatically fix the IDEA Ultimate used by the remote SSH extension";
         };
-    
+
         Service = {
           # When a monitored directory is deleted, it will stop being monitored.
           # Even if it is later recreated it will not restart monitoring it.
@@ -81,7 +82,7 @@ in {
           RestartSec = 0;
           ExecStart = "${mkStartScript name}";
         };
-    
+
         Install = {
           WantedBy = [ "default.target" ];
         };

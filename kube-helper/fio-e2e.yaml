@@ -6,20 +6,21 @@ metadata:
     app: fio
 spec:
   nodeSelector:
-    kubernetes.io/hostname: ksnode-2
+    kubernetes.io/hostname: node-0-119170
   # Run on a storage node so that the nexus is local to the app
   volumes:
     - name: ms-volume
       persistentVolumeClaim:
-       claimName: pvc-$N
+       claimName: basic-vol-io-2r-ext4-thick-bindimm
   containers:
     - name: fio
-      securityContext:
-        privileged: true
       image: mayadata/fio
       args:
         - sleep
         - "1000000"
-      volumeDevices:
-        - devicePath: /dev/xvda
+      volumeMounts:
+        - mountPath: "/volume"
           name: ms-volume
+      #volumeDevices:
+      #  - devicePath: /dev/xvda
+      #    name: ms-volume

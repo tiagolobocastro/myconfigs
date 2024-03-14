@@ -4,7 +4,7 @@
   i18n.defaultLocale = "en_GB.UTF-8";
   console = {
     font = "Lat2-Terminus16";
-    keyMap = "uk";
+    keyMap = "us";
   };
 
   # Where's Wally?
@@ -12,7 +12,7 @@
 
   fonts = {
     fontDir.enable = true;
-    fonts = with pkgs;
+    packages = with pkgs;
       [ (nerdfonts.override { fonts = [ "Hasklig" "FiraCode" ]; }) ];
   };
 }

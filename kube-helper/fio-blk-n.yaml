@@ -1,17 +1,20 @@
 kind: Pod
 apiVersion: v1
 metadata:
-  name: fio-$N
+  name: fio-1
   labels:
     app: fio
 spec:
   nodeSelector:
-    kubernetes.io/hostname: ksnode-2
+    kubernetes.io/hostname: worker-0
   # Run on a storage node so that the nexus is local to the app
   volumes:
-    - name: ms-volume
+    - name: ms-volume-1
       persistentVolumeClaim:
-       claimName: pvc-$N
+       claimName: pvc-1
+    - name: ms-volume-2
+      persistentVolumeClaim:
+       claimName: pvc-2
   containers:
     - name: fio
       securityContext:
@@ -21,5 +24,7 @@ spec:
         - sleep
         - "1000000"
       volumeDevices:
-        - devicePath: /dev/xvda
-          name: ms-volume
+        - devicePath: /dev/xvda1
+          name: ms-volume-1
+        - devicePath: /dev/xvda2
+          name: ms-volume-2
