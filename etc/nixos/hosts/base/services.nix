@@ -3,10 +3,14 @@
   # services.openssh.enable = true;
 
   # Enable the X11 windowing system.
-  services.xserver.enable = true;
-  services.xserver.layout = "us";
-  services.xserver.xkbOptions = "intl";
-  #services.xserver.xkbOptions = "eurosign:e"; # what's this for??
+  services.xserver = {
+    enable = true;
+    xkb = {
+      options = "intl";
+      #options = "eurosign:e"; # what's this for??
+      layout = "us";
+    };
+  };
 
   #services.flatpak.enable = true;
   #xdg.portal.extraPortals = [ pkgs.xdg-desktop-portal-gtk pkgs.xdg-desktop-portal-kde ];

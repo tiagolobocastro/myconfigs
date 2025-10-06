@@ -1,6 +1,7 @@
 { config, pkgs, lib, ... }:
 let
-  unstable = import <nixos-unstable> { config = config.nixpkgs.config; };
+  #unstable = import <nixos-unstable> { config = config.nixpkgs.config; };
+  a = 1;
 in
 {
   options = {

@@ -1,7 +1,7 @@
 kind: Pod
 apiVersion: v1
 metadata:
-  name: fio-$N
+  name: fio-test-$N
   labels:
     app: fio
 spec:
@@ -9,9 +9,10 @@ spec:
     kubernetes.io/hostname: kind-worker2
   # Run on a storage node so that the nexus is local to the app
   volumes:
-    - name: ms-volume
-      persistentVolumeClaim:
-       claimName: pvc-$N
+    - name: var-lib
+      hostPath:
+        path: /var/lib
+        type: Directory
   containers:
     - name: fio
       image: mayadata/fio
@@ -19,8 +20,9 @@ spec:
         - sleep
         - "1000000"
       volumeMounts:
-        - mountPath: "/volume"
-          name: ms-volume
+        - mountPath: "/var/lib"
+          name: var-lib
+          #mountPropagation: HostToContainer
       #volumeDevices:
       #  - devicePath: /dev/xvda
       #    name: ms-volume

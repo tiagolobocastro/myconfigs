@@ -1,7 +1,7 @@
 kind: Pod
 apiVersion: v1
 metadata:
-  name: fio-$N
+  name: fio-test-$N
   labels:
     app: fio
 spec:
@@ -12,6 +12,10 @@ spec:
     - name: ms-volume
       persistentVolumeClaim:
        claimName: pvc-$N
+    - name: var-lib
+      hostPath:
+        path: /var/lib
+        type: Directory
   containers:
     - name: fio
       image: mayadata/fio
@@ -21,6 +25,8 @@ spec:
       volumeMounts:
         - mountPath: "/volume"
           name: ms-volume
+        - mountPath: "/var/lib"
+          name: var-lib
       #volumeDevices:
       #  - devicePath: /dev/xvda
       #    name: ms-volume

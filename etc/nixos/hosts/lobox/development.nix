@@ -2,23 +2,23 @@
 {
   environment.systemPackages = with pkgs; [
     # GUIs
-    drawio
+    # drawio
 
     # Golang
     # jetbrains.goland
     go
     pkg-config
-    alsaLib
+    # alsaLib
     gopls
 
     # DBG
     linuxPackages.bpftrace
 
     # Networking
-    tcpdump
-    wireshark
+    #tcpdump
+    #wireshark
 
-    # zerotierone
+    zerotierone
     cntr
   ];
 

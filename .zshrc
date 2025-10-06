@@ -84,12 +84,15 @@ alias mk=$'sudo /home/tiago/git/myconfigs/maya/clean_pids.sh'
 alias k=$'kubectl'
 alias kb=$'kubectl -n bolt'
 alias km=$'kubectl -n mayastor'
+alias ke=$'kubectl -n openebs'
 alias p=$'kb get pods -o wide'
 alias pp=$'k get pods -A'
 alias dms=$'kb get pods -l app=bolt -o name | xargs -I % sh -c "kubectl -n bolt describe % | head -n 4"'
 alias dm=$'dmm;dmn;echo -e "\n";dms'
 alias dmc=$'dmm;dmn'
 alias ks='kubectl -n kube-system'
+
+alias kp='kubectl -n puls8'
 
 alias fms='f(){
 km logs --follow $1 bolt--tail=-1
@@ -105,5 +108,12 @@ export PATH=$PATH:~/git/myconfigs/maya:/home/tiago/git/mayastor/controller/targe
 alias ls='eza '
 alias nz='nix-shell --run zsh'
 alias cl='nohup clion &>/dev/null . &'
+alias rv='nohup rust-rover &>/dev/null . &'
 
 eval "$(direnv hook zsh)"
+
+export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
+
+alias gcloud-zsh='nix-shell -p "google-cloud-sdk.withExtraComponents [google-cloud-sdk.components.gke-gcloud-auth-plugin]" --run zsh'
+
+export K8S_DEPLOYER_SHELL=true

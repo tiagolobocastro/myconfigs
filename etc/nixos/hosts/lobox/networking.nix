@@ -15,39 +15,20 @@ in
     enable = true;
     settings = {
       General = {
-        ControllerMode = "dual";
-        Enable = "Source,Sink,Media,Socket";
+       ControllerMode = "dual";
+       #Experimental = true;
+       #Enable = "Source,Sink,Media,Socket";
       };
     };
   };
-
   security.rtkit.enable = true;
-  services.pipewire = {
-    enable = true;
-    alsa.enable = true;
-    alsa.support32Bit = true;
-    pulse.enable = true;
-    # If you want to use JACK applications, uncomment this
-    #jack.enable = true;
-  };
-
-  environment.etc = {
-    "wireplumber/bluetooth.lua.d/51-bluez-config.lua".text = ''
-      bluez_monitor.properties = {
-        ["bluez5.enable-sbc-xq"] = true,
-        ["bluez5.enable-msbc"] = true,
-        ["bluez5.enable-hw-volume"] = true,
-        ["bluez5.headset-roles"] = "[ hsp_hs hsp_ag hfp_hf hfp_ag ]"
-      }
-    '';
-  };
 
   # The global useDHCP flag is deprecated, therefore explicitly set to false here.
   # Per-interface useDHCP will be mandatory in the future, so this generated config
   # replicates the default behaviour.
   networking.useDHCP = false;
   networking.enableIPv6 = true;
-  networking.interfaces.enp34s0.useDHCP = true;
+  networking.interfaces.enp39s0.useDHCP = true;
   networking.interfaces.wlo1.useDHCP = true;
 
   # Open ports in the firewall.
@@ -57,7 +38,11 @@ in
   networking.firewall = {
     enable = true;
     checkReversePath = false;
-    # interfaces."mayabridge0".allowedTCPPorts = [ 8082 ];
+    allowedTCPPorts = [ 22 ];
+
+    trustedInterfaces = [ "lxdbr0" "virbr1" ];
+
+    #interfaces."virbr1".allowedTCPPorts = [ 8082 ];
     #extraCommands = ''
     #  #iptables -A INPUT -i mayabridge0 -j ACCEPT
     #'';
@@ -68,5 +53,5 @@ in
   #   10.0.0.6 api-rest.mayastor.openebs.io
   # '';
 
-  imports = [ ../../modules/reading-vpn.nix ];
+  #imports = [ ../../modules/reading-vpn.nix ];
 }

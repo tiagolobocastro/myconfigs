@@ -2,12 +2,14 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: pvc-$N
+  namespace: ${NS:-puls8}
 spec:
   accessModes:
-   - ReadWriteOnce
-  # Change to "Block" for raw block device
-  volumeMode: Filesystem
+    - ReadWriteOnce
+    #- ReadWriteMany
+  volumeMode: Block
   resources:
     requests:
       storage: $SZ
   storageClassName: $SC
+

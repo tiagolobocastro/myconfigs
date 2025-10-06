@@ -1,0 +1,10 @@
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: lvm-dpc
+parameters:
+  storage: lvm
+  vgpattern: kind-worker.*
+provisioner: local.csi.openebs.io
+reclaimPolicy: Retain
+

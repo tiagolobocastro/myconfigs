@@ -1,3 +1,3 @@
 { config, lib, pkgs, ... }: {
-  imports = [ ./kde.nix ./common.nix ];
+  imports = [ ./gnome.nix ./common.nix ];
 }

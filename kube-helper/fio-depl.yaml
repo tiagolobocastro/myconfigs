@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fio-$N
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fio
+  template:
+    metadata:
+      labels:
+        app: fio
+    spec:
+      #nodeSelector:
+      #  kubernetes.io/hostname: ksnode-2
+      priorityClassName: mayastor-cluster-critical
+      containers:
+      - name: pausy
+        image: registry.k8s.io/pause:latest
+        volumeMounts:
+        - name: ms-volume
+          mountPath: /volume
+      volumes:
+      - name: ms-volume
+        persistentVolumeClaim:
+         claimName: pvc-$N

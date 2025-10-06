@@ -6,12 +6,11 @@ metadata:
 parameters:
   repl: '1'
   protocol: 'nvmf'
-  ioTimeout: '30'
   thin: "true"
   #nvmeCtrlLossTmo: '120'
   # nvmeKeepAliveTmo: '11'
   # It is recommended to use xfs for Mayastor
-  # fsType: 'xfs'
+  fsType: 'xfs'
 provisioner: io.openebs.csi-mayastor
 ---
 kind: StorageClass
@@ -39,3 +38,14 @@ parameters:
   # It is recommended to use xfs for Mayastor
   # fsType: 'xfs'
 provisioner: io.openebs.csi-mayastor
+---
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: mayastor-single-replicas
+parameters:
+  repl: '1'
+  protocol: 'nvmf'
+  thin: "true"
+provisioner: io.openebs.csi-mayastor
+reclaimPolicy: Retain

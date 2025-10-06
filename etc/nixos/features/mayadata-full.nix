@@ -9,7 +9,6 @@ rec {
   environment.systemPackages = with pkgs; [
     # Kubernetes
     (terraform.withPlugins (p: [ p.libvirt p.null p.lxd p.kubernetes p.helm p.local ])) # deploy local cluster via terraform
-    # ansible_2_10 # Otherwise we hit some python issues...
     ansible
 
     # DBG
@@ -17,7 +16,13 @@ rec {
 
     # VPN into the Hetzner "Lab" (service is disabled by default)
     zerotierone
+
+    #openfortivpn
+
+    #(google-cloud-sdk.withExtraComponents [google-cloud-sdk.components.gke-gcloud-auth-plugin])
   ];
+
+  #systemd.coredump.enable = true;
 
   # terraform Libvirt VM's for k8s testing
   virtualisation = {
@@ -29,10 +34,15 @@ rec {
         };
         runAsRoot = true;
       };
+      allowedBridges = [
+        "virbr0"
+        "br0"
+        "virbr1"
+      ];
       onBoot = "ignore";
       onShutdown = "shutdown";
     };
-    lxd = { enable = true; };
+    # lxd = { enable = true; };
     docker = {
       enable = true;
       # extraOptions = ''
@@ -41,11 +51,12 @@ rec {
     };
   };
   # terraform can also be setup with LXD
-  systemd.services.lxd.path = with pkgs; [
-    lvm2
-    thin-provisioning-tools
-    e2fsprogs
-  ];
+  # systemd.services.lxd.path = with pkgs; [
+  #   lvm2
+  #   thin-provisioning-tools
+  #   e2fsprogs
+  #   lvm2_dmeventd
+  # ];
 
   system.nssDatabases.hosts = [ "libvirt libvirt_guest" ];
   #services.resolved.enable = true;

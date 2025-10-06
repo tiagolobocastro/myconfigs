@@ -1,6 +1,6 @@
 { config, pkgs, lib, ... }:
 let
-  version = "23.1.2";
+  version = "24.1.5";
   version_ = builtins.replaceStrings [ "." ] [ "_" ] version;
 in
 {
@@ -10,7 +10,7 @@ in
       src = fetchurl {
         url =
           "https://www.syntevo.com/downloads/smartgit/smartgit-linux-${version_}.tar.gz";
-        sha256 = "sha256-gXfHmRPUhs8s7IQIhN0vQyx8NpLrS28ufNNYOMA4AXw=";
+        sha256 = "sha256-YqueTbwA9KcXEJG5TeWkPzzNyAnnJQ1+VQYsqZKS2/I=";
       };
       desktopItem = oldAttrs.desktopItem.overrideAttrs (desktopAttrs: {
         text =

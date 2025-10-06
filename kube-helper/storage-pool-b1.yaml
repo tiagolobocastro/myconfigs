@@ -1,4 +1,4 @@
-apiVersion: "openebs.io/v1beta3"
+apiVersion: "openebs.io/v1beta1"
 kind: DiskPool
 metadata:
   name: pool-$NODE

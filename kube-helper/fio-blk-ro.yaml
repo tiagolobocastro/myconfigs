@@ -1,7 +1,7 @@
 kind: Pod
 apiVersion: v1
 metadata:
-  name: fio-$N
+  name: fio-ro-$N
   labels:
     app: fio
 spec:
@@ -12,6 +12,7 @@ spec:
     - name: ms-volume
       persistentVolumeClaim:
        claimName: pvc-1
+       readOnly: true
   containers:
     - name: fio
       securityContext:

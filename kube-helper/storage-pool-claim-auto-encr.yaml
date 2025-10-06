@@ -1,0 +1,13 @@
+apiVersion: "puls8.datacore.com/v1alpha1"
+kind: DiskPoolClaim
+metadata:
+  name: pool-$NODE$X
+  namespace: $NAMESPACE
+spec:
+  nodeName: $NODE
+  source:
+    pvc:
+      name: $PVC
+      namespace: $NAMESPACE
+  encryption:
+    enabled: true

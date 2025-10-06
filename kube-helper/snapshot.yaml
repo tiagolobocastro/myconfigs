@@ -1,0 +1,8 @@
+apiVersion: snapshot.storage.k8s.io/v1
+kind: VolumeSnapshot
+metadata:
+  name: $PVC-snapshot-$N
+spec:
+  volumeSnapshotClassName: csi-mayastor-snapshotclass
+  source:
+    persistentVolumeClaimName: $PVC

@@ -12,7 +12,7 @@
   boot.loader.systemd-boot.enable = true;
 
   boot = {
-    kernelPackages = pkgs.linuxPackages_latest;
+    #kernelPackages = pkgs.linuxPackages_latest;
     kernelParams = [ "mitigations=off" "coretemp" ];
     kernelModules = [
       "nbd"
