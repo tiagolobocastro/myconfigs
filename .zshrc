@@ -103,7 +103,23 @@ km exec $1 -c mayastor --stdin --tty -- /sbin/sh
 unset -f f;
 }; f'
 
-export PATH=$PATH:~/git/myconfigs/maya:/home/tiago/git/mayastor/controller/target/debug:/home/tiago/git/mayastor/extensions/target/debug:/home/tiago/git/mayastor/io-engine/target/debug
+add_to_path() {
+  case ":$PATH:" in
+    *":$1:"*) ;;
+    *) PATH="$PATH:$1" ;;
+  esac
+}
+prepend_to_path() {
+  case ":$PATH:" in
+    *":$1:"*) ;;
+    *) PATH="$1:$PATH" ;;
+  esac
+}
+
+add_to_path "$HOME/git/myconfigs/maya"
+add_to_path "$HOME/git/mayastor/io-engine/target/debug"
+add_to_path "$HOME/git/mayastor/controller/target/debug"
+add_to_path "$HOME/git/mayastor/extensions/target/debug"
 
 alias ls='eza '
 alias nz='nix-shell --run zsh'
@@ -112,7 +128,7 @@ alias rv='nohup rust-rover &>/dev/null . &'
 
 eval "$(direnv hook zsh)"
 
-export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
+prepend_to_path "${KREW_ROOT:-$HOME/.krew}/bin"
 
 alias gcloud-zsh='nix-shell -p "google-cloud-sdk.withExtraComponents [google-cloud-sdk.components.gke-gcloud-auth-plugin]" --run zsh'
 
