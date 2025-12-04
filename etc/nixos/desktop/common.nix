@@ -15,6 +15,6 @@
     gparted
 
     # Passwords
-    bitwarden
+    bitwarden-desktop
   ];
 }

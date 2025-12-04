@@ -30,7 +30,7 @@ let
 in
 {
   environment.systemPackages = with pkgs; [
-    (vim_configurable.customize {
+    (vim-full.customize {
       name = "vim";
       vimrcConfig.packages.myplugins = myplugins;
       vimrcConfig.customRC = customRC;

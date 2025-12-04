@@ -13,7 +13,7 @@ fetch_sri() {
         echo "ERROR $error Fetching $version for $system" >&2
         return $error
     fi
-    nix hash convert --hash-algo sha256 --to sri $hashi
+    nix hash convert --hash-algo sha256 --to sri $hashi --extra-experimental-features nix-command
 }
 
 display_sri() {

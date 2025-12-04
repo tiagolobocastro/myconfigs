@@ -5,8 +5,6 @@ metadata:
   labels:
     app: fio
 spec:
-  nodeSelector:
-    kubernetes.io/hostname: kind-worker2
   # Run on a storage node so that the nexus is local to the app
   volumes:
     - name: ms-volume

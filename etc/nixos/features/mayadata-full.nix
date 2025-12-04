@@ -8,7 +8,7 @@ in
 rec {
   environment.systemPackages = with pkgs; [
     # Kubernetes
-    (terraform.withPlugins (p: [ p.libvirt p.null p.lxd p.kubernetes p.helm p.local ])) # deploy local cluster via terraform
+    (terraform.withPlugins (p: [ p.dmacvicar_libvirt p.hashicorp_null p.terraform-lxd_lxd p.hashicorp_kubernetes p.hashicorp_helm p.hashicorp_local ])) # deploy local cluster via terraform
     ansible
 
     # DBG
@@ -29,15 +29,16 @@ rec {
     libvirtd = {
       enable = true;
       qemu = {
-        ovmf = {
-          enable = true;
-        };
+        # ovmf = {
+        #   enable = true;
+        # };
         runAsRoot = true;
       };
       allowedBridges = [
         "virbr0"
         "br0"
         "virbr1"
+        "talos3d3a9d82"
       ];
       onBoot = "ignore";
       onShutdown = "shutdown";

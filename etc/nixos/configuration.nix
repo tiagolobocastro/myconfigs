@@ -58,7 +58,8 @@ in
     supportedFilesystems = [ "zfs" ];
     zfs.forceImportRoot = false;
   };
-  environment.systemPackages = with pkgs; [ zfs libnvme ];
+  environment.systemPackages = with pkgs; [ zfs libnvme qemu talosctl ];
+  systemd.tmpfiles.rules = [ "L+ /var/lib/qemu/firmware - - - - ${pkgs.qemu}/share/qemu/firmware" ];
 
   services.zerotierone = { enable = true; };
 }

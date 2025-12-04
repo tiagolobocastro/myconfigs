@@ -33,7 +33,6 @@ metadata:
 parameters:
   repl: '3'
   protocol: 'nvmf'
-  ioTimeout: '30'
   ctrlLossTmo: '120'
   # It is recommended to use xfs for Mayastor
   # fsType: 'xfs'

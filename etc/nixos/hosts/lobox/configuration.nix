@@ -24,4 +24,16 @@
   users.users."tiago".openssh.authorizedKeys.keyFiles = [
     /home/tiago/.ssh/id_rsa.pub
   ];
+
+  environment.systemPackages = with pkgs; [ vagrant ];
+
+  services.cockpit = {
+    enable = false;
+    # openFirewall = true;
+    settings = {
+      WebService = {
+        AllowUnencrypted = true;
+      };
+    };
+  };
 }

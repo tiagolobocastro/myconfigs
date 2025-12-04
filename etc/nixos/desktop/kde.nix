@@ -5,23 +5,22 @@
 
   # Enable the KDE Desktop Environment
   #services.xserver.desktopManager.plasma5.enable = false;
-  #services.xserver.displayManager.sddm.enable = true;
-  #services.xserver.displayManager.lightdm.enable = true;
+  # services.xserver.displayManager.lightdm.enable = true;
 
   services.desktopManager.plasma6.enable = true;
   services.displayManager.sddm.enable = true;
   services.displayManager.sddm.wayland.enable = false;
 
-  services.displayManager.defaultSession = "plasmax11";
+  # services.displayManager.defaultSession = "plasmax11";
 
   #programs.hyprland = {
   #  enable = true;
   #  xwayland.enable = true;
   #};
 
-  environment.sessionVariables = {
-    NIXOS_OZONE_WL = "1";
-  };
+  # environment.sessionVariables = {
+  #   NIXOS_OZONE_WL = "1";
+  # };
 
   # Browser Plasma Integration
   programs.firefox.nativeMessagingHosts.packages = [ pkgs.plasma6Packages.plasma-browser-integration ];
@@ -35,7 +34,7 @@
     yakuake
     ark
     partitionmanager
-    pkgs.linuxPackages_latest.perf
+    # pkgs.linuxPackages_latest.perf
 
     # Office
     # p3x-onenote

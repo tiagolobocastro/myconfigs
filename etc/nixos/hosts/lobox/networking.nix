@@ -36,11 +36,11 @@ in
   # networking.firewall.allowedUDPPorts = [ ... ];
   # Or disable the firewall altogether.
   networking.firewall = {
-    enable = true;
+    enable = false;
     checkReversePath = false;
     allowedTCPPorts = [ 22 ];
 
-    trustedInterfaces = [ "lxdbr0" "virbr1" ];
+    trustedInterfaces = [ "lxdbr0" "virbr1" "talos3d3a9d82" ];
 
     #interfaces."virbr1".allowedTCPPorts = [ 8082 ];
     #extraCommands = ''

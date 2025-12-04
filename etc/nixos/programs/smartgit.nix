@@ -5,7 +5,7 @@ let
 in
 {
   environment.systemPackages = with pkgs; [
-    (smartgithg.overrideAttrs (oldAttrs: rec {
+    (smartgit.overrideAttrs (oldAttrs: rec {
       inherit version;
       src = fetchurl {
         url =

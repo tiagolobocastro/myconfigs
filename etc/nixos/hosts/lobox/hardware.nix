@@ -47,12 +47,12 @@ in
 
   services.xserver.videoDrivers = ["nvidia"];
   hardware.nvidia = {
-    open = false;
-    # modesetting.enable = true;
+    open = true;
+    modesetting.enable = true;
     # open = false;
-    # nvidiaSettings = true;
-    # powerManagement.enable = true;
-    # powerManagement.finegrained = false;
+    nvidiaSettings = true;
+    powerManagement.enable = false;
+    powerManagement.finegrained = false;
   };
 
   services.pulseaudio.enable = false;
@@ -84,4 +84,7 @@ in
  #   { domain = "*"; item = "nofile"; type = "-"; value = "32768"; }
  #   { domain = "*"; item = "memlock"; type = "-"; value = "65536"; }
  # ];
+
+  virtualisation.virtualbox.host.enable = true;
+  users.extraGroups.vboxusers.members = [ "tiago" ];
 }
